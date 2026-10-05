@@ -12,13 +12,10 @@ const geojsonFile = "data/kecamatan_jatim.geojson";
 // =====================================================
 
 let dataset = [];
-
 let geojsonData = null;
-
 let map;
-
 let geoLayer;
-
+let selectedKecamatan = null;
 
 // =====================================================
 // START
@@ -107,13 +104,9 @@ async function loadCSV(){
         dataset.length
     );
 
-
-
     createFilter();
 
-
     createCharts();
-
 
     createMap();
 
@@ -257,37 +250,25 @@ function createFilter(){
 
 function createCharts(){
 
-
     let tahun =
-
     [
         ...new Set(
             dataset.map(
                 d=>d.tahun
             )
         )
-
     ]
     .sort();
 
-
-
     let direct = [];
-
     let st = [];
-
-
 
     tahun.forEach(
         t=>{
-
-
             let data =
             dataset.filter(
                 d=>d.tahun===t
             );
-
-
 
             direct.push(
                 mean(
@@ -300,8 +281,6 @@ function createCharts(){
                 )
             );
 
-
-
             st.push(
                 mean(
                     data.map(
@@ -310,24 +289,14 @@ function createCharts(){
                     )
                 )
             );
-
-
         }
     );
 
-
-
-
     Plotly.newPlot(
-
         "grafik-model",
-
         [
-
             {
-
             x:tahun,
-
             y:direct,
 
             name:
@@ -335,21 +304,77 @@ function createCharts(){
 
             type:
             "scatter"
-
             },
 
-
             {
-
             x:tahun,
-
             y:st,
-
             name:
             "ST-SAE",
 
             type:
             "scatter"
+            }
+        ],
+        {
+
+        template:
+        "plotly_white",
+
+        title:
+        "Perkembangan Pengeluaran Per Kapita"
+        }
+    );
+
+    createRRMSEChart();
+
+}
+
+function createRRMSEChart(){
+    let models = [
+
+        "RRMSE_direct",
+        "RRMSE_Spatial",
+        "RRMSE_Temporal",
+        "RRMSE_ST"
+    ];
+
+    let values=[];
+
+    models.forEach(
+        m=>{
+            let avg =
+            mean(
+                dataset.map(
+                    d=>Number(d[m])
+                )
+            );
+
+            values.push(avg);
+        }
+    );
+
+    Plotly.newPlot(
+
+        "grafik-rrmse-model",
+
+        [
+
+            {
+
+            x:
+            [
+            "Direct",
+            "Spatial SAE",
+            "Temporal SAE",
+            "ST-SAE"
+            ],
+
+
+            y:values,
+
+
+            type:"bar"
 
             }
 
@@ -362,19 +387,13 @@ function createCharts(){
         "plotly_white",
 
         title:
-        "Perkembangan Pengeluaran Per Kapita"
+        "Perbandingan RRMSE Model"
 
         }
 
     );
 
-
-
 }
-
-
-
-
 
 // =====================================================
 // MAP
@@ -585,27 +604,18 @@ function updateMap(){
 
 
             layer.bindPopup(
+                `
+                <b>
+                ${layer.feature.properties.kecamata}
+                </b>
+                <br>
+                
+                <button onclick="showKecamatan('${kode}')">
 
-            `
-
-            <b>
-            ${layer.feature.properties.kecamata}
-            </b>
-
-            <br>
-
-            Kabupaten/Kota:
-            ${layer.feature.properties.kab_kota}
-
-            <br><br>
-
-            ST-SAE:
-            ${value ? formatNumber(value) : "Tidak tersedia"}
-
-            `
-
+                Lihat Tren
+                </button>
+                `
             );
-
 
         }
 
@@ -614,9 +624,68 @@ function updateMap(){
 
 }
 
+function showKecamatan(kode){
+
+
+    let data = dataset.filter(
+
+        d=>
+
+        d.kode_kecamatan_kemendagri
+        ==
+        kode
+
+    );
 
 
 
+    let tahun =
+    data.map(
+        d=>d.tahun
+    );
+
+
+    let nilai =
+    data.map(
+        d=>d.EBLUP_ST
+    );
+
+
+
+    Plotly.newPlot(
+
+        "grafik-kecamatan",
+
+        [
+
+            {
+
+            x:tahun,
+
+            y:nilai,
+
+            mode:
+            "lines+markers",
+
+            name:
+            "ST-SAE"
+
+            }
+
+        ],
+
+        {
+
+        template:
+        "plotly_white",
+
+        title:
+        "Perkembangan ST-SAE Kecamatan"
+
+        }
+    );
+
+}
 
 
 // =====================================================
@@ -671,7 +740,6 @@ function mean(arr){
 }
 
 
-
 function formatNumber(num){
 
     return Number(num)
@@ -679,4 +747,95 @@ function formatNumber(num){
         "id-ID"
     );
 
+}
+
+function generateInsight(){
+    let avgST =
+    mean(
+
+        dataset.map(
+            d=>d.EBLUP_ST
+        )
+
+    );
+
+    document.getElementById(
+        "insight-text"
+    )
+    .innerHTML =
+
+    `
+    Rata-rata estimasi ST-SAE
+    selama periode penelitian adalah:
+
+    <h3>
+
+    ${formatNumber(avgST)}
+
+    </h3>
+
+    rupiah per kapita.
+
+    `;
+
+
+}
+
+function initializeDashboard(){
+    createFilter();
+    createCharts();
+    createMap();
+    createRanking();
+    generateInsight();
+
+}
+
+function createRanking(){
+
+    let tahun=2025;
+
+    let data =
+    dataset.filter(
+    d=>d.tahun==tahun
+    );
+    data.sort(
+        (a,b)=>
+            b.EBLUP_ST-a.EBLUP_ST
+    );
+    
+    let top =
+    data.slice(
+        0,
+        10
+    );
+
+Plotly.newPlot(
+
+    "ranking",
+    [{
+        x:
+        top.map(
+        d=>d.kecamata
+    ),
+
+        y:
+        top.map(
+        d=>d.EBLUP_ST
+    ),
+    
+    type:"bar"
+
+    }],
+
+        {
+
+        template:
+            "plotly_white",
+
+        title:
+            "10 Kecamatan dengan Estimasi ST-SAE Tertinggi"
+
+        }
+
+    );
 }
