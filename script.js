@@ -141,43 +141,31 @@ function createFilter(){
     ]
     .sort();
 
-
-
     tahunList.forEach(
         tahun=>{
-
-
             let option =
             document.createElement(
                 "option"
             );
 
-
             option.value =
             tahun;
 
-
             option.text =
             tahun;
-
 
             tahunSelect
             .appendChild(
                 option
             );
 
-
         }
     );
-
-
 
     tahunSelect.value =
     Math.max(
         ...tahunList
     );
-
-
 
     let kabSelect =
     document.getElementById(
@@ -198,7 +186,6 @@ function createFilter(){
         )
     ]
     .sort();
-
 
     kabList.push(
         ...daftarKab
@@ -225,22 +212,24 @@ function createFilter(){
         }
     );
 
-
-
     tahunSelect.addEventListener(
         "change",
         updateMap
     );
-
-
     kabSelect.addEventListener(
         "change",
         updateMap
     );
+    let variableSelect =
+    document.getElementById(
+    "variable-filter"
+    );
 
+    variableSelect.addEventListener(
+        "change",
+        updateMap
+    );
 }
-
-
 
 
 // =====================================================
@@ -322,77 +311,99 @@ function createCharts(){
         "plotly_white",
 
         title:
-        "Perkembangan Pengeluaran Per Kapita"
+        "Perkembangan Nilai Pengeluaran Per Kapita"
         }
     );
 
-    createRRMSEChart();
+    createRRMSETable();
 
 }
 
-function createRRMSEChart(){
-    let models = [
+function createRRMSETable(){
+    let models =
+[
+    {
+        nama:"Direct Estimate",
+        kolom:"RRMSE_direct"
+    },
 
-        "RRMSE_direct",
-        "RRMSE_Spatial",
-        "RRMSE_Temporal",
-        "RRMSE_ST"
-    ];
+    {
+        nama:"Spatial SAE",
+        kolom:"RRMSE_Spatial"
+    },
 
-    let values=[];
+    {
+        nama:"Temporal SAE",
+        kolom:"RRMSE_Temporal"
+    },
 
-    models.forEach(
-        m=>{
-            let avg =
-            mean(
-                dataset.map(
-                    d=>Number(d[m])
-                )
-            );
+    {
+        nama:"ST-SAE",
+        kolom:"RRMSE_ST"
+    }
+];
 
-            values.push(avg);
-        }
-    );
+let html = `
+<table>
+<tr>
+<th>
+Model
+</th>
+<th>
+Rata-rata RRMSE
+</th>
+<th>
+Kategori
+</th>
+</tr>
+`;
 
-    Plotly.newPlot(
+models.forEach(
+m=>{
 
-        "grafik-rrmse-model",
+let nilai =
+mean(
+dataset.map(
+d=>Number(d[m.kolom])
+)
+);
+html +=
+`
+<tr>
+<td>
+${m.nama}
+</td>
+<td>
+${nilai.toFixed(2)} %
+</td>
+<td>
+${kategoriRRMSE(nilai)}
+</td>
+</tr>
+`;
 
-        [
+});
 
-            {
+html += "</table>";
 
-            x:
-            [
-            "Direct",
-            "Spatial SAE",
-            "Temporal SAE",
-            "ST-SAE"
-            ],
+document.getElementById(
+"rrmse-table"
+)
+.innerHTML=html;
+}
 
+function kategoriRRMSE(x){
+    if(x<=10)
+    return "Sangat Baik";
 
-            y:values,
+    else if(x<=25)
+    return "Baik";
 
+    else if(x<=50)
+    return "Kurang";
 
-            type:"bar"
-
-            }
-
-        ],
-
-
-        {
-
-        template:
-        "plotly_white",
-
-        title:
-        "Perbandingan RRMSE Model"
-
-        }
-
-    );
-
+    else
+    return "Sangat Kurang";
 }
 
 // =====================================================
@@ -401,9 +412,6 @@ function createRRMSEChart(){
 
 
 async function createMap(){
-
-
-
     map =
     L.map(
         "map"
@@ -413,57 +421,76 @@ async function createMap(){
         8
     );
 
-
-
     L.tileLayer(
-
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-
         {
-
         attribution:
         "OpenStreetMap"
-
         }
-
     )
 
     .addTo(map);
 
+    let legend =
+    L.control(
+    {
+    position:"bottomright"
+    }
+    );
 
+    legend.onAdd =
+    function(){
+
+    let div =
+    L.DomUtil.create(
+    "div",
+    "legend"
+    );
+
+    div.innerHTML=
+    `
+    <b>
+    Legenda
+    </b>
+
+    <br>
+
+    <span class="box low"></span>
+    Rendah
+
+    <br>
+
+    <span class="box mid"></span>
+    Sedang
+
+    <br>
+    <span class="box high"></span>
+    Tinggi
+    `;
+        return div;
+        };
+
+    legend.addTo(map);
 
     let response =
     await fetch(
         geojsonFile
     );
 
-
     geojsonData =
     await response.json();
 
-
-
     geoLayer =
     L.geoJSON(
-
         geojsonData,
-
         {
-
         style:
-
         {
-
         color:"#ffffff",
-
         weight:1,
-
         fillColor:"#CBD5E1",
-
         fillOpacity:0.8
-
         },
-
 
         onEachFeature:
 
@@ -507,8 +534,6 @@ async function createMap(){
 
 
 function updateMap(){
-
-
     if(!geoLayer)
 
     return;
@@ -557,6 +582,20 @@ function updateMap(){
         }
     );
 
+    let variable =
+    document.getElementById(
+        "variable-filter"
+    )
+    .value;
+
+    valueMap[
+    d.kode_kecamatan_kemendagri
+    ]
+    =
+    Number(
+        d[variable]
+);
+
     geoLayer.eachLayer(
         layer=>{
             let kode =
@@ -599,123 +638,175 @@ function updateMap(){
     );
 
     if(
-    kab !== "Semua Kabupaten/Kota"
+kab !== "Semua Kabupaten/Kota"
 ){
 
-    let bounds =
-    [];
+let kodeKec =
+filtered.map(
+d=>d.kode_kecamatan_kemendagri
+);
 
-    geoLayer.eachLayer(
-        layer=>{
-            if(
-                layer.feature.properties.kab_kota
-                ===
-                kab
-            ){
-                bounds.push(
-                    layer.getBounds()
-                );
-            }
-        }
-    );
+let bounds=[];
 
-    if(bounds.length>0){
-        let group =
-        L.featureGroup(
-            bounds
-        );
+geoLayer.eachLayer(
+layer=>{
 
-        map.fitBounds(
-            group.getBounds()
-        );
-    }
+let kode =
+String(
+layer.feature.properties.kode_kec
+)
+.trim();
+
+if(
+kodeKec.includes(kode)
+){
+bounds.push(
+layer.getBounds()
+);
+}
+}
+);
+
+if(bounds.length){
+let group =
+L.featureGroup(bounds);
+
+map.fitBounds(
+group.getBounds(),
+{
+padding:[20,20]
+}
+);
+}
 }
 else{
-    map.setView(
-        [-7.75,112.5],
-        8
+    map.fitBounds(
+    geoLayer.getBounds()
     );
 }
 
-document.getElementById(
-"map-info"
-)
-.innerHTML =
-
-`
-Menampilkan 
-<b>
-${filtered.length}
-</b>
-kecamatan
-pada tahun
-<b>
-${tahun}
-</b>
-`;
 }
 
 function showKecamatan(kode){
 
-
-    let data = dataset.filter(
-
+    let data =
+        dataset.filter(
         d=>
-
         d.kode_kecamatan_kemendagri
         ==
         kode
-
     );
 
+    if(data.length===0)
+    return;
 
+    let terbaru =
+        data.sort(
+        (a,b)=>
+        b.tahun-a.tahun
+        )[0];
+
+    document.getElementById(
+    "profil-kecamatan"
+    )
+    .innerHTML =
+    `
+    <h2>
+    ${terbaru.nama_kecamatan_bps}
+    </h2>
+
+    <p>
+    Kabupaten/Kota:
+    <b>
+    ${terbaru.kab_kota}
+    </b>
+    </p>
+
+    <div class="mini-stat">
+    <div>
+    <h3>
+    Rp ${formatNumber(terbaru.EBLUP_ST)}
+    </h3>
+
+    <p>
+    Estimasi ST-SAE (${terbaru.tahun})
+    </p>
+
+    </div>
+
+    <div>
+
+    <h3>
+    ${Number(
+    terbaru.RRMSE_ST
+    ).toFixed(2)}%
+    </h3>
+    <p>
+    RRMSE
+    </p>
+    </div>
+    <div>
+    <h3>
+    ${terbaru.kategori_RRMSE_ST}
+    </h3>
+    <p>
+    Kategori
+    </p>
+    </div>
+    </div>
+    `;
 
     let tahun =
     data.map(
-        d=>d.tahun
+    d=>d.tahun
     );
-
 
     let nilai =
     data.map(
-        d=>d.EBLUP_ST
+    d=>d.EBLUP_ST
     );
-
-
 
     Plotly.newPlot(
+    "grafik-kecamatan",
 
-        "grafik-kecamatan",
+    [
+    {
+    x:tahun,
+    y:nilai,
+    mode:
+    "lines+markers",
+    name:
+    "ST-SAE"
+    }
 
-        [
+    ],
+    {
 
-            {
+    template:
+    "plotly_white",
 
-            x:tahun,
-
-            y:nilai,
-
-            mode:
-            "lines+markers",
-
-            name:
-            "ST-SAE"
-
-            }
-
-        ],
-
-        {
-
-        template:
-        "plotly_white",
-
-        title:
-        "Perkembangan ST-SAE Kecamatan"
-
-        }
+    title:
+    `Tren Estimasi ST-SAE ${terbaru.nama_kecamatan_bps}`
+    }
     );
 
+    let direct =
+    Number(
+    terbaru.pengeluaran_mean
+    );
+
+    let st =
+    Number(
+    terbaru.EBLUP_ST
+    );
+
+    let perubahan =
+    (
+    (st-direct)
+    /
+    direct
+    )
+    *100;
 }
 
 
@@ -796,7 +887,7 @@ function generateInsight(){
     .innerHTML =
 
     `
-    Rata-rata estimasi ST-SAE
+    Rata-rata estimasi Spasio-Temporal SAE
     selama periode penelitian adalah:
 
     <h3>
@@ -805,7 +896,7 @@ function generateInsight(){
 
     </h3>
 
-    rupiah per kapita.
+    juta rupiah per kapita.
 
     `;
 
@@ -917,3 +1008,28 @@ function createInsight(){
     `;
 
 }
+
+const observer =
+    new IntersectionObserver(
+    entries=>{
+        entries.forEach(
+            entry=>{
+
+    if(entry.isIntersecting){
+
+    entry.target.classList.add(
+    "show"
+    );
+
+    }
+
+    });
+
+    });
+
+
+    document
+    .querySelectorAll(".fade")
+    .forEach(
+    el=>observer.observe(el)
+    );
