@@ -110,12 +110,7 @@ async function loadCSV(){
         dataset.length
     );
 
-    createFilter();
-
-    createCharts();
-
-    createMap();
-
+    initializeDashboard();
 
 }
 
@@ -191,13 +186,23 @@ function createFilter(){
 
     let kabList =
     [
-        "Semua Kabupaten/Kota",
-        ...[...new Set(
+    "Semua Kabupaten/Kota"
+];
+
+    let daftarKab =
+    [
+        ...new Set(
             dataset.map(
                 d=>d.kab_kota
             )
-        )].sort()
-    ];
+        )
+    ]
+    .sort();
+
+
+    kabList.push(
+        ...daftarKab
+    );
 
     kabList.forEach(
         kab=>{
@@ -217,9 +222,6 @@ function createFilter(){
             .appendChild(
                 option
             );
-
-            kabSelect.value =
-            "Semua Kabupaten/Kota";
         }
     );
 
@@ -511,8 +513,6 @@ function updateMap(){
 
     return;
 
-
-
     let tahun =
     Number(
         document.getElementById(
@@ -520,14 +520,10 @@ function updateMap(){
         ).value
     );
 
-
-
     let kab =
     document.getElementById(
         "kab-filter"
     ).value;
-
-
 
     let filtered;
     if(
@@ -851,7 +847,7 @@ Plotly.newPlot(
     [{
         x:
         top.map(
-        d=>d.kecamata
+        d=>d.nama_kecamatan_bps
     ),
 
         y:
@@ -898,6 +894,8 @@ function createInsight(){
         b.EBLUP_ST-a.EBLUP_ST
     )[0];
 
+    if(!tertinggi)
+        return;
 
     document.getElementById(
         "insight-text"
