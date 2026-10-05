@@ -76,6 +76,12 @@ async function loadCSV(){
             )
             .trim();
 
+            d.kab_kota =
+            String(
+                d.kab_kota
+            )
+            .trim();
+
 
             d.tahun =
             Number(
@@ -183,45 +189,37 @@ function createFilter(){
         "kab-filter"
     );
 
-
-
     let kabList =
     [
-        ...new Set(
+        "Semua Kabupaten/Kota",
+        ...[...new Set(
             dataset.map(
                 d=>d.kab_kota
             )
-        )
-    ]
-    .sort();
-
-
+        )].sort()
+    ];
 
     kabList.forEach(
         kab=>{
-
 
             let option =
             document.createElement(
                 "option"
             );
 
-
             option.value =
             kab;
 
-
             option.text =
             kab;
-
-
 
             kabSelect
             .appendChild(
                 option
             );
 
-
+            kabSelect.value =
+            "Semua Kabupaten/Kota";
         }
     );
 
@@ -531,66 +529,51 @@ function updateMap(){
 
 
 
-    let filtered =
-    dataset.filter(
-
-        d =>
-
-        d.tahun===tahun
-
-        &&
-
-        d.kab_kota===kab
-
+    let filtered;
+    if(
+        kab === "Semua Kabupaten/Kota"
+){
+        filtered =
+        dataset.filter(
+            d =>
+            d.tahun===tahun
     );
-
-
+}
+    else{
+        filtered =
+        dataset.filter(
+            d =>
+            d.tahun===tahun
+            &&
+            d.kab_kota===kab
+    );
+}
 
     let valueMap = {};
 
-
-
     filtered.forEach(
-
         d=>{
-
-
             valueMap[
                 d.kode_kecamatan_kemendagri
             ]
             =
             d.EBLUP_ST;
-
-
         }
-
     );
 
-
-
     geoLayer.eachLayer(
-
         layer=>{
-
-
             let kode =
-
             String(
                 layer.feature.properties.kode_kec
             )
             .trim();
 
-
-
             let value =
             valueMap[kode];
 
-
-
             layer.setStyle(
-
                 {
-
                 fillColor:
                 getColor(value),
 
@@ -600,8 +583,6 @@ function updateMap(){
                 }
 
             );
-
-
 
             layer.bindPopup(
                 `
@@ -621,7 +602,61 @@ function updateMap(){
 
     );
 
+    if(
+    kab !== "Semua Kabupaten/Kota"
+){
 
+    let bounds =
+    [];
+
+    geoLayer.eachLayer(
+        layer=>{
+            if(
+                layer.feature.properties.kab_kota
+                ===
+                kab
+            ){
+                bounds.push(
+                    layer.getBounds()
+                );
+            }
+        }
+    );
+
+    if(bounds.length>0){
+        let group =
+        L.featureGroup(
+            bounds
+        );
+
+        map.fitBounds(
+            group.getBounds()
+        );
+    }
+}
+else{
+    map.setView(
+        [-7.75,112.5],
+        8
+    );
+}
+
+document.getElementById(
+"map-info"
+)
+.innerHTML =
+
+`
+Menampilkan 
+<b>
+${filtered.length}
+</b>
+kecamatan
+pada tahun
+<b>
+${tahun}
+</b>
+`;
 }
 
 function showKecamatan(kode){
@@ -787,6 +822,7 @@ function initializeDashboard(){
     createMap();
     createRanking();
     generateInsight();
+    createInsight();
 
 }
 
@@ -838,4 +874,48 @@ Plotly.newPlot(
         }
 
     );
+}
+
+function createInsight(){
+
+    let tahun =
+    Math.max(
+        ...dataset.map(
+            d=>d.tahun
+        )
+    );
+
+
+    let data =
+    dataset.filter(
+        d=>d.tahun===tahun
+    );
+
+
+    let tertinggi =
+    data.sort(
+        (a,b)=>
+        b.EBLUP_ST-a.EBLUP_ST
+    )[0];
+
+
+    document.getElementById(
+        "insight-text"
+    )
+    .innerHTML =
+
+    `
+    Pada tahun ${tahun},
+    estimasi ST-SAE tertinggi ditemukan
+    pada Kecamatan
+    <b>
+    ${tertinggi.nama_kecamatan_bps}
+    </b>
+    dengan estimasi
+    <b>
+    Rp ${formatNumber(tertinggi.EBLUP_ST)}
+    </b>
+    per kapita.
+    `;
+
 }
