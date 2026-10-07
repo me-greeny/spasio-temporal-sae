@@ -1,535 +1,164 @@
 <!DOCTYPE html>
-
 <html lang="id">
-
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-
-<title>
-Estimasi Pengeluaran Per Kapita Jawa Timur
-</title>
-
-
-<!-- CSS -->
-
-<link rel="stylesheet"
-href="style.css">
-
-
-<!-- Plotly -->
-
-<script src="
-https://cdn.plot.ly/plotly-latest.min.js">
-</script>
-
-
-<!-- Leaflet -->
-
-<link rel="stylesheet"
-href="
-https://unpkg.com/leaflet/dist/leaflet.css"
-/>
-
-
-<script src="
-https://unpkg.com/leaflet/dist/leaflet.js">
-</script>
-
-<script src="
-https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js">
-</script>
-
-<script src="script.js"></script>
-
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimasi Pengeluaran Per Kapita Jawa Timur</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css?v=4">
+    
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    
+    <!-- PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
-
-
-
 <body>
 
-
-<!-- ======================
-     NAVBAR
-======================= -->
-
-
-<nav class="navbar">
-
-
-<div class="logo">
-
-ST-SAE Jawa Timur
-
-</div>
-
-
-<div class="nav-menu">
-
-
-<a href="#beranda">
-Beranda
-</a>
-
-
-<a href="#latar-belakang">
-Latar Belakang
-</a>
-
-
-<a href="#metodologi">
-Metodologi
-</a>
-
-
-<a href="#hasil">
-Hasil
-</a>
-
-
-<a href="#peta">
-Peta
-</a>
-
-
-<a href="#kesimpulan">
-Kesimpulan
-</a>
-
-
-</div>
-
-
-</nav>
-
-
-
-
-
-<!-- ======================
-     HERO
-======================= -->
-
-
-<section id="beranda"
-class="hero">
-
-
-<div>
-
-
-<h1>
-
-Estimasi Rata-rata Pengeluaran
-Per Kapita Tingkat Kecamatan
-di Jawa Timur
-
-</h1>
-
-
-<h2>
-
-Menggunakan Pendekatan
-Spatio-Temporal Small Area Estimation
-
-</h2>
-
-
-<p>
-
-Periode penelitian:
-<strong>
-2018–2025
-</strong>
-
-</p>
-
-
-<div class="stat-container">
-
-
-<div class="stat-card">
-
-<h3>
-661
-</h3>
-
-<p>
-Kecamatan
-</p>
-
-</div>
-
-
-
-<div class="stat-card">
-
-<h3>
-8
-</h3>
-
-<p>
-Tahun Observasi
-</p>
-
-</div>
-
-
-
-<div class="stat-card">
-
-<h3>
-Spasio-Temporal SAE
-</h3>
-
-<p>
-Model Estimasi
-</p>
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-<!-- ======================
- LATAR BELAKANG
-======================= -->
-
-
-<section id="latar-belakang"
-class="section">
-
-
-<h2>
-Latar Belakang
-</h2>
-
-<p>
-
-Estimasi pengeluaran per kapita pada tingkat
-kecamatan memiliki tantangan berupa keterbatasan
-ukuran sampel dan variasi tingkat presisi antar wilayah.
-
-</p>
-
-<p>
-
-Pendekatan Small Area Estimation digunakan untuk
-meningkatkan akurasi estimasi dengan memanfaatkan
-informasi tambahan berupa karakteristik wilayah,
-hubungan spasial, dan dinamika waktu.
-
-</p>
-
-
-<div class="highlight">
-
-Direct Estimate BPS
-
-↓
-
-Spatial SAE
-
-↓
-
-Temporal SAE
-
-↓
-
-Spatio-Temporal SAE
-
-
-</div>
-
-
-
-</section>
-
-<!-- ======================
- METODOLOGI
-======================= -->
-
-
-<section id="metodologi"
-class="section">
-
-
-<h2>
-Metodologi Penelitian
-</h2>
-
-<div class="workflow">
-
-<div>
-Data Direct Estimate
-</div>
-
-<div>
-+
-</div>
-
-<div>
-Auxiliary Variables
-</div>
-
-<div>
-+
-</div>
-
-<div>
-Informasi Spasial dan Temporal
-</div>
-
-<div>
-↓
-</div>
-
-<div>
-Model ST-SAE
-</div>
-
-<div>
-↓
-</div>
-
-
-<div>
-Evaluasi MSE dan RRMSE
-</div>
-
-</div>
-
-<img
-src="data/gambar/diagram_alir_penelitian.png"
-class="workflow-image"
-alt="Alur Penelitian"
->
-
-</section>
-
-
-<!-- ======================
- HASIL
-======================= -->
-
-
-<section id="hasil"
-class="section">
-
-
-<h2>
-Hasil Estimasi
-</h2>
-
-
-<p>
-
-Perbandingan estimasi langsung dan hasil
-estimasi menggunakan Spatial SAE,
-Temporal SAE, serta ST-SAE.
-
-</p>
-
-<div id="grafik-model"
-class="chart">
-
-</div>
-
-<div id="ranking">
-
-</div>
-
-<h2>
-Evaluasi Model
-</h2>
-
-<div id="rrmse-table"
-class="table-container">
-
-</div>
-
-</section>
-
-
-
-<!-- ======================
- PETA
-======================= -->
-
-
-<section id="peta"
-class="section">
-
-
-<h2>
-Sebaran Estimasi ST-SAE Jawa Timur
-</h2>
-
-
-
-<p>
-
-Eksplorasi estimasi berdasarkan tahun
-dan wilayah kecamatan.
-
-</p>
-
-
-
-<div class="filter-container">
-
-<p id="map-info">
-
-</p>
-
-<label>
-Tahun:
-</label>
-
-
-<select id="tahun-filter">
-
-</select>
-
-
-<label>
-Kabupaten/Kota:
-</label>
-
-
-<select id="kab-filter">
-
-</select>
-
-<label>
-Variabel:
-</label>
-
-
-<select id="variable-filter">
-
-<option value="EBLUP_ST">
-Estimasi Spasio-Temporal SAE
-</option>
-
-
-<option value="RRMSE_ST">
-RRMSE Spasio-Temporal SAE
-</option>
-
-
-<option value="pengeluaran_mean">
-Direct Estimate
-</option>
-
-
-</select>
-
-</div>
-
-<div id="map">
-
-</div>
-
-<div id="grafik-kecamatan"
-class="chart">
-
-</div>
-
-<div id="profil-kecamatan"
-class="profil-card">
-
-</div>
-
-<div id="ranking"
-class="chart">
-
-</div>
-
-</section>
-
-
-<!-- ======================
- KESIMPULAN
-======================= -->
-<section id="insight"
-class="section">
-
-<h2>
-Temuan Utama
-</h2>
-
-<div id="insight-text"
-class="conclusion">
-
-</div>
-
-</section>
-
-<section id="kesimpulan"
-class="section">
-
-
-<h2>
-Kesimpulan
-</h2>
-
-
-
-<div class="conclusion">
-
-
-<p>
-
-Pendekatan ST-SAE menghasilkan estimasi
-pengeluaran per kapita tingkat kecamatan
-dengan mempertimbangkan variasi spasial
-dan temporal.
-
-</p>
-
-
-<p>
-
-Hasil penelitian dapat digunakan sebagai
-media eksplorasi statistik wilayah
-berbasis data.
-
-</p>
-
-
-</div>
-
-
-
-</section>
-
-<footer>
-
-<p>
-
-Web Story Penelitian 
-Estimasi Spasio-Temporal Small Area Estimation
-Rata-Rata Pengeluaran Per Kapita Tingkat Kecamatan di Jawa Timur
-
-</p>
-
-</footer>
-
-<script src="script.js"></script>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">ST-SAE Jawa Timur</div>
+        <div class="nav-menu">
+            <a href="#beranda">Beranda</a>
+            <a href="#latar-belakang">Latar Belakang</a>
+            <a href="#metodologi">Metodologi</a>
+            <a href="#hasil">Hasil</a>
+            <a href="#peta">Peta</a>
+            <a href="#kesimpulan">Kesimpulan</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="beranda" class="hero">
+        <div class="fade">
+            <h1>Estimasi Rata-rata Pengeluaran Per Kapita Tingkat Kecamatan di Jawa Timur</h1>
+            <h2>Menggunakan Pendekatan Spatio-Temporal Small Area Estimation</h2>
+            <p>Periode observasi data: <strong>2018 &mdash; 2021</strong></p>
+            
+            <div class="stat-container">
+                <div class="stat-card">
+                    <h3>661</h3>
+                    <p>Kecamatan</p>
+                </div>
+                <div class="stat-card">
+                    <h3>4</h3>
+                    <p>Tahun Observasi</p>
+                </div>
+                <div class="stat-card">
+                    <h3>ST-SAE</h3>
+                    <p>Model Estimasi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LATAR BELAKANG -->
+    <section id="latar-belakang" class="section">
+        <div class="fade">
+            <h2>Latar Belakang</h2>
+            <p>Estimasi pengeluaran per kapita pada tingkat kecamatan memiliki tantangan berupa keterbatasan ukuran sampel dan variasi tingkat presisi antar wilayah.</p>
+            <p>Pendekatan Small Area Estimation digunakan untuk meningkatkan akurasi estimasi dengan memanfaatkan informasi tambahan berupa karakteristik wilayah, hubungan spasial, dan dinamika waktu.</p>
+            
+            <div class="highlight">
+                Direct Estimate BPS &rarr; Spatial SAE &rarr; Temporal SAE &rarr; Spatio-Temporal SAE
+            </div>
+        </div>
+    </section>
+
+    <!-- METODOLOGI -->
+    <section id="metodologi" class="section">
+        <div class="fade">
+            <h2>Metodologi Penelitian</h2>
+            <div class="workflow">
+                <div>Data Direct Estimate</div>
+                <div>+</div>
+                <div>Auxiliary Variables</div>
+                <div>+</div>
+                <div>Informasi Spasial & Temporal</div>
+                <div>&rarr;</div>
+                <div>Model ST-SAE</div>
+                <div>&rarr;</div>
+                <div>Evaluasi MSE dan RRMSE</div>
+            </div>
+            <img src="data/gambar/diagram_alir_penelitian.png" class="workflow-image" alt="Alur Penelitian" onerror="this.style.display='none'">
+        </div>
+    </section>
+
+    <!-- HASIL -->
+    <section id="hasil" class="section">
+        <div class="fade">
+            <h2>Hasil Estimasi</h2>
+            <p>Perbandingan tren estimasi langsung dan hasil estimasi ST-SAE.</p>
+            <div id="grafik-model" class="chart"></div>
+            
+            <h2 style="margin-top: 60px;">Evaluasi Model</h2>
+            <div id="rrmse-table" class="table-container"></div>
+        </div>
+    </section>
+
+    <!-- PETA -->
+    <section id="peta" class="section">
+        <div class="fade">
+            <h2>Sebaran Estimasi ST-SAE Jawa Timur</h2>
+            <p>Eksplorasi estimasi berdasarkan tahun dan wilayah kecamatan secara interaktif. Pilih area pada peta untuk melihat tren.</p>
+            
+            <div class="filter-container">
+                <div>
+                    <label for="tahun-filter">Tahun: </label>
+                    <select id="tahun-filter"></select>
+                </div>
+                <div>
+                    <label for="kab-filter">Kabupaten/Kota: </label>
+                    <select id="kab-filter"></select>
+                </div>
+                <div>
+                    <label for="variable-filter">Variabel: </label>
+                    <select id="variable-filter">
+                        <option value="EBLUP_ST">Estimasi Spasio-Temporal SAE</option>
+                        <option value="RRMSE_ST">RRMSE Spasio-Temporal SAE</option>
+                        <option value="pengeluaran_mean">Direct Estimate</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="map"></div>
+            <div id="profil-kecamatan" class="profil-card"></div>
+            <div id="grafik-kecamatan" class="chart"></div>
+            <div id="ranking" class="chart"></div>
+        </div>
+    </section>
+
+    <!-- KESIMPULAN -->
+    <section id="insight" class="section">
+        <div class="fade">
+            <h2>Temuan Utama</h2>
+            <div id="insight-text" class="conclusion"></div>
+        </div>
+    </section>
+
+    <section id="kesimpulan" class="section">
+        <div class="fade">
+            <h2>Kesimpulan</h2>
+            <div class="conclusion">
+                <p>Pendekatan ST-SAE menghasilkan estimasi pengeluaran per kapita tingkat kecamatan dengan mempertimbangkan variasi spasial dan temporal yang lebih baik dibandingkan dengan Direct Estimate.</p>
+                <p style="margin-top: 15px;">Hasil penelitian ini dapat digunakan sebagai media eksplorasi statistik wilayah berbasis data yang lebih akurat dan presisi.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Web Story Penelitian &mdash; Estimasi Spasio-Temporal Small Area Estimation Rata-Rata Pengeluaran Per Kapita Tingkat Kecamatan di Jawa Timur</p>
+    </footer>
+
+    <!-- Script -->
+    <script src="script.js?v=4"></script>
 </body>
-
 </html>
