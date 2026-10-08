@@ -1,0 +1,5 @@
+Model,Jumlah Variabel,Variabel
+M221,6,"NTL_ln_z, LST_z, NDBI_z, CO_z, pendidikan_z, ekonomi_ln_z"
+M165,5,"NTL_ln_z, LST_z, NDBI_z, CO_z, pendidikan_z"
+M87,4,"NTL_ln_z, LST_z, NDVI_z, pendidikan_z"
+M4,3,"LST_z, pendidikan_z, ekonomi_ln_z"
