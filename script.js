@@ -504,99 +504,147 @@ kecSelect.appendChild(option);
 // =====================================================
 
 function createTrendChart(){
-let tahun =
-[
-...new Set(
-dataEstimasi.map(
-d=>d.tahun
-))
-]
-.sort();
 
-let direct=[];
-let stsae=[];
+
+let tahun = [
+    ...new Set(
+        dataEstimasi.map(
+            d => Number(d.tahun)
+        )
+    )
+].sort();
+
+
+
+let meanDirect = [];
+
+let meanSTSAE = [];
+
+
+
 tahun.forEach(t=>{
 
-let subset =
-dataEstimasi.filter(
-d=>d.tahun===t
-);
 
-direct.push(
-mean(
-subset.map(
-d=>d.Direct_Estimate
-)
-)
-);
+    let subset =
+    dataEstimasi.filter(
+        d => Number(d.tahun) === t
+    );
 
-stsae.push(
-mean(
-subset.map(
-d=>d.STSAE_M87
-)
-)
-);
+
+    let direct =
+    subset.map(
+        d => Number(d.Direct_Estimate)
+    );
+
+
+    let stsae =
+    subset.map(
+        d => Number(d.STSAE_M87)
+    );
+
+
+
+    meanDirect.push(
+        mean(direct)
+    );
+
+
+    meanSTSAE.push(
+        mean(stsae)
+    );
+
+
+
 });
+
+
+
+let trace1 = {
+
+    x:tahun,
+
+    y:meanDirect,
+
+    name:
+    "Direct Estimate",
+
+    type:
+    "scatter",
+
+    mode:
+    "lines+markers"
+
+};
+
+
+
+let trace2 = {
+
+    x:tahun,
+
+    y:meanSTSAE,
+
+    name:
+    "ST-SAE M87",
+
+    type:
+    "scatter",
+
+    mode:
+    "lines+markers"
+
+};
+
+
+
+
+let layout={
+
+
+title:
+"Perbandingan Rata-rata Pengeluaran per Kapita",
+
+
+xaxis:{
+
+title:
+"Tahun"
+
+},
+
+
+yaxis:{
+
+title:
+"Pengeluaran per Kapita (Rp)"
+
+},
+
+
+margin:{
+
+t:50
+
+}
+
+
+
+};
+
+
 
 Plotly.newPlot(
 
 "grafik-model",
 
 [
-
-
-{
-x:tahun,
-
-y:direct,
-
-name:
-"Direct Estimate",
-
-type:"scatter",
-
-mode:
-"lines+markers"
-
-},
-
-
-{
-x:tahun,
-
-y:stsae,
-
-name:
-"Spasio-Temporal SAE",
-
-type:"scatter",
-
-mode:
-"lines+markers"
-
-}
-
-
+trace1,
+trace2
 ],
 
-
-{
-
-title:
-"Perbandingan Rata-rata Estimasi Langsung dan Spasio-Temporal SAE",
-
-
-template:
-"plotly_white"
-
-}
-
-
+layout
 
 );
-
-
 }
 
 // =====================================================
