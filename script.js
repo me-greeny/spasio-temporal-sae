@@ -1,423 +1,1692 @@
 // =====================================================
-// CONFIGURATION
+// KONFIGURASI FILE DATA
 // =====================================================
-const csvFile = "data/hasil_webstory.csv";
-const geojsonFile = "data/kecamatan_jatim.geojson";
+
+
+const path = "data/";
+
+
+const fileEstimasi =
+    path + 
+    "hasil_estimasi_STSAE_M87_level_kecamatan.csv";
+
+
+const fileEvaluasi =
+    path +
+    "evaluasi_MSE_RRMSE_M87_tahunan.csv";
+
+
+const fileCompare =
+    path +
+    "perbandingan_RRMSE_Direct_vs_M87.csv";
+
+
+const fileModel =
+    path +
+    "evaluasi_semua_model_STSAE.csv";
+
+
+const fileSpesifikasi =
+    path +
+    "spesifikasi_model_STSAE.csv";
+
+
+const geojsonFile =
+    path +
+    "hasil_peta_STSAE_M87.geojson";
+
+
+
 
 // =====================================================
 // GLOBAL VARIABLE
 // =====================================================
-let dataset = [];
-let geojsonData = null;
+
+
+let dataEstimasi = [];
+
+let dataEvaluasi = [];
+
+let dataCompare = [];
+
+let dataModel = [];
+
+let dataSpesifikasi = [];
+
+let geoData;
+
 let map;
+
 let geoLayer;
+
+
+
 
 // =====================================================
 // START
 // =====================================================
-document.addEventListener("DOMContentLoaded", loadCSV);
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadAllData
+);
+
+
+
 
 // =====================================================
-// LOAD CSV
+// LOAD SEMUA DATA
 // =====================================================
-async function loadCSV() {
-    try {
-        const response = await fetch(csvFile);
-        const text = await response.text();
 
-        dataset = Papa.parse(text, {
-            header: true,
-            dynamicTyping: false
-        }).data;
 
-        // bersihkan data kosong
-        dataset = dataset.filter(d => d.kode_kecamatan_kemendagri);
+async function loadAllData(){
 
-        // normalisasi kode
-        dataset.forEach(d => {
-            d.kode_kecamatan_kemendagri = String(d.kode_kecamatan_kemendagri).trim();
-            d.kab_kota = String(d.kab_kota).trim();
-            d.tahun = Number(d.tahun);
-            d.EBLUP_ST = Number(d.EBLUP_ST);
-            d.RRMSE_ST = Number(d.RRMSE_ST);
-            d.pengeluaran_mean = Number(d.pengeluaran_mean);
-        });
 
-        console.log("Data CSV:", dataset.length);
+    try{
+
+
+        dataEstimasi =
+            await loadCSV(fileEstimasi);
+
+
+        dataEvaluasi =
+            await loadCSV(fileEvaluasi);
+
+
+        dataCompare =
+            await loadCSV(fileCompare);
+
+
+        dataModel =
+            await loadCSV(fileModel);
+
+
+        dataSpesifikasi =
+            await loadCSV(fileSpesifikasi);
+
+
+
+        geojsonData =
+            await fetch(geojsonFile)
+            .then(res=>res.json());
+
+
+
+        console.log(
+            "Estimasi:",
+            dataEstimasi.length
+        );
+
+
+        console.log(
+            "Evaluasi:",
+            dataEvaluasi.length
+        );
+
+
+        console.log(
+            "Model:",
+            dataModel.length
+        );
+
+
+
+        cleanData();
+
+
+
         initializeDashboard();
-    } catch (e) {
-        console.error("Error loading CSV:", e);
+
+
+
     }
+
+    catch(error){
+
+        console.error(
+            "Gagal membaca data:",
+            error
+        );
+
+    }
+
+
 }
 
-// =====================================================
-// FILTER TAHUN
-// =====================================================
-function createFilter() {
-    let tahunSelect = document.getElementById("tahun-filter");
-    let tahunList = [...new Set(dataset.map(d => d.tahun))].sort();
 
-    tahunList.forEach(tahun => {
-        let option = document.createElement("option");
-        option.value = tahun;
-        option.text = tahun;
-        tahunSelect.appendChild(option);
-    });
-    tahunSelect.value = Math.max(...tahunList);
 
-    let kabSelect = document.getElementById("kab-filter");
-    let kabList = ["Semua Kabupaten/Kota"];
-    let daftarKab = [...new Set(dataset.map(d => d.kab_kota))].sort();
-    kabList.push(...daftarKab);
-
-    kabList.forEach(kab => {
-        let option = document.createElement("option");
-        option.value = kab;
-        option.text = kab;
-        kabSelect.appendChild(option);
-    });
-
-    tahunSelect.addEventListener("change", updateMap);
-    kabSelect.addEventListener("change", updateMap);
-    
-    let variableSelect = document.getElementById("variable-filter");
-    variableSelect.addEventListener("change", updateMap);
-}
 
 // =====================================================
-// CHART
+// PEMBACA CSV
 // =====================================================
-function createCharts() {
-    let tahun = [...new Set(dataset.map(d => d.tahun))].sort();
-    let direct = [];
-    let st = [];
 
-    tahun.forEach(t => {
-        let data = dataset.filter(d => d.tahun === t);
-        direct.push(mean(data.map(d => d.pengeluaran_mean)));
-        st.push(mean(data.map(d => d.EBLUP_ST)));
-    });
 
-    Plotly.newPlot("grafik-model", [
-        { x: tahun, y: direct, name: "Direct Estimate", type: "scatter", mode: 'lines+markers', line: {shape: 'spline', width: 3}, marker: {size: 8} },
-        { x: tahun, y: st, name: "ST-SAE", type: "scatter", mode: 'lines+markers', line: {shape: 'spline', color: '#2563EB', width: 3}, marker: {size: 8} }
-    ], {
-        template: "plotly_white",
-        title: "Perkembangan Nilai Pengeluaran Per Kapita",
-        margin: {t: 60, b: 100, l: 60, r: 30},
-        xaxis: { automargin: true },
-        yaxis: { automargin: true },
-        legend: { orientation: "h", yanchor: "top", y: -0.2, xanchor: "center", x: 0.5 },
-        hovermode: "x unified",
-        height: 500
-    }, {responsive: true});
+function loadCSV(file){
 
-    createRRMSETable();
-}
 
-function createRRMSETable() {
-    let models = [
-        { nama: "Direct Estimate", kolom: "RRMSE_direct" },
-        { nama: "Spatial SAE", kolom: "RRMSE_Spatial" },
-        { nama: "Temporal SAE", kolom: "RRMSE_Temporal" },
-        { nama: "ST-SAE", kolom: "RRMSE_ST" }
-    ];
+    return fetch(file)
 
-    let html = `
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Model</th>
-                    <th>Rata-rata RRMSE</th>
-                    <th>Kategori</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    .then(response=>response.text())
 
-    models.forEach(m => {
-        let nilai = mean(dataset.map(d => Number(d[m.kolom]) || 0));
-        let cat = kategoriRRMSE(nilai);
-        html += `
-            <tr>
-                <td>${m.nama}</td>
-                <td>${nilai.toFixed(2)} %</td>
-                <td><span class="badge ${cat.toLowerCase().replace(' ', '-')}">${cat}</span></td>
-            </tr>
-        `;
-    });
+    .then(text=>{
 
-    html += "</tbody></table>";
-    document.getElementById("rrmse-table").innerHTML = html;
-}
 
-function kategoriRRMSE(x) {
-    if (x <= 10) return "Sangat Baik";
-    if (x <= 25) return "Baik";
-    if (x <= 50) return "Kurang";
-    return "Sangat Kurang";
-}
-
-// =====================================================
-// MAP
-// =====================================================
-async function createMap() {
-    map = L.map("map").setView([-7.75, 112.5], 8);
-
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "OpenStreetMap"
-    }).addTo(map);
-
-    let legend = L.control({ position: "bottomright" });
-    legend.onAdd = function () {
-        let div = L.DomUtil.create("div", "legend");
-        div.innerHTML = `
-            <b>Legenda Pengeluaran</b><br>
-            <div class="legend-item"><span class="box low"></span>&lt; 1 Juta</div>
-            <div class="legend-item"><span class="box mid1"></span>1 Juta - 1.5 Juta</div>
-            <div class="legend-item"><span class="box mid2"></span>1.5 Juta - 2 Juta</div>
-            <div class="legend-item"><span class="box high"></span>&gt; 2 Juta</div>
-        `;
-        return div;
-    };
-    legend.addTo(map);
-
-    try {
-        let response = await fetch(geojsonFile);
-        geojsonData = await response.json();
-
-        geoLayer = L.geoJSON(geojsonData, {
-            style: {
-                color: "#ffffff",
-                weight: 1,
-                fillColor: "#CBD5E1",
-                fillOpacity: 0.8
-            },
-            onEachFeature: function (feature, layer) {
-                layer.bindTooltip(feature.properties.kecamata || "Tidak diketahui");
+        return Papa.parse(
+            text,
+            {
+                header:true,
+                dynamicTyping:true,
+                skipEmptyLines:true
             }
-        }).addTo(map);
 
-        updateMap();
-    } catch (e) {
-        console.error("Error loading GeoJSON:", e);
-    }
+        ).data;
+
+
+    });
+
+
+}
+
+
+
+
+// =====================================================
+// MEMBERSIHKAN DATA
+// =====================================================
+
+
+function cleanData(){
+
+
+
+    dataEstimasi =
+        dataEstimasi.filter(
+            d =>
+            d.kode_kecamatan_kemendagri
+        );
+
+
+
+    dataEstimasi.forEach(d=>{
+
+
+        d.kode_kecamatan_kemendagri =
+            String(
+                d.kode_kecamatan_kemendagri
+            ).trim();
+
+
+
+        d.tahun =
+            Number(d.tahun);
+
+
+
+        d.Direct_Estimate =
+            Number(
+                d.Direct_Estimate
+            );
+
+
+
+        d.STSAE_M87 =
+            Number(
+                d.STSAE_M87
+            );
+
+
+
+        d.RRMSE_M87 =
+            Number(
+                d.RRMSE_M87
+            );
+
+
+
+        d.RRMSE_Direct =
+            Number(
+                d.RRMSE_Direct
+            );
+
+
+
+    });
+
+
+
 }
 
 // =====================================================
-// UPDATE MAP
+// INITIAL DASHBOARD
 // =====================================================
-function updateMap() {
-    if (!geoLayer) return;
 
-    let tahun = Number(document.getElementById("tahun-filter").value);
-    let kab = document.getElementById("kab-filter").value;
-    let variable = document.getElementById("variable-filter").value;
 
-    let filtered = dataset.filter(d => d.tahun === tahun);
-    if (kab !== "Semua Kabupaten/Kota") {
-        filtered = filtered.filter(d => d.kab_kota === kab);
-    }
+function initializeDashboard(){
+    createFilter();
 
-    let valueMap = {};
-    filtered.forEach(d => {
-        valueMap[d.kode_kecamatan_kemendagri] = Number(d[variable]) || 0;
-    });
+    createEvaluationTable();
 
-    geoLayer.eachLayer(layer => {
-        let kode = String(layer.feature.properties.kode_kec).trim();
-        let value = valueMap[kode];
+    createCompareChart();
 
-        layer.setStyle({
-            fillColor: getColor(value, variable),
-            fillOpacity: 0.85
-        });
+    createModelTable();
 
-        let kecName = layer.feature.properties.kecamata || "Tidak diketahui";
-        let valText = value ? (variable.includes('RRMSE') ? value.toFixed(2) + '%' : 'Rp ' + formatNumber(value)) : 'Tidak ada data';
-        let varNameText = document.querySelector(`#variable-filter option[value="${variable}"]`).text;
+    createModelSpecification();
 
-        layer.bindPopup(`
-            <div style="font-family: Inter, sans-serif;">
-                <b style="font-size: 16px; color: #1e3a8a;">${kecName}</b><br>
-                <span style="font-size: 13px; color: #64748b;">${varNameText}:</span><br>
-                <b style="font-size: 14px;">${valText}</b><br>
-                <button class="btn-primary" onclick="showKecamatan('${kode}')" style="margin-top: 10px; width: 100%;">Lihat Tren Detail</button>
-            </div>
-        `);
-    });
+    initializeMap();
 
-    if (kab !== "Semua Kabupaten/Kota") {
-        let kodeKec = filtered.map(d => d.kode_kecamatan_kemendagri);
-        let bounds = [];
-        geoLayer.eachLayer(layer => {
-            let kode = String(layer.feature.properties.kode_kec).trim();
-            if (kodeKec.includes(kode)) {
-                bounds.push(layer.getBounds());
-            }
-        });
-        if (bounds.length) {
-            let group = L.featureGroup(bounds);
-            map.fitBounds(group.getBounds(), { padding: [20, 20] });
-        }
-    } else {
-        map.fitBounds(geoLayer.getBounds());
-    }
+    createInsight();
 }
 
-window.showKecamatan = function(kode) {
-    let data = dataset.filter(d => d.kode_kecamatan_kemendagri === kode);
-    if (data.length === 0) return;
 
-    let terbaru = data.sort((a, b) => b.tahun - a.tahun)[0];
-    
-    let profilKecamatan = document.getElementById("profil-kecamatan");
-    profilKecamatan.style.display = "block";
+// =====================================================
+// FILTER
+// =====================================================
 
-    profilKecamatan.innerHTML = `
-        <h2 style="margin-bottom: 5px; font-size: 28px;">${terbaru.nama_kecamatan_bps}</h2>
-        <p style="color: #64748b; font-size: 16px;">Kabupaten/Kota: <b>${terbaru.kab_kota}</b></p>
 
-        <div class="mini-stat">
-            <div>
-                <h3 style="font-size: 24px;">Rp ${formatNumber(terbaru.EBLUP_ST)}</h3>
-                <p>Estimasi ST-SAE (${terbaru.tahun})</p>
-            </div>
-            <div>
-                <h3 style="font-size: 24px;">${Number(terbaru.RRMSE_ST).toFixed(2)}%</h3>
-                <p>RRMSE</p>
-            </div>
-            <div>
-                <h3 style="font-size: 24px;">${terbaru.kategori_RRMSE_ST || kategoriRRMSE(terbaru.RRMSE_ST)}</h3>
-                <p>Kategori RRMSE</p>
-            </div>
-        </div>
-    `;
+function createFilter(){
 
-    // Ensure chart container is displayed properly before plotting
-    document.getElementById("grafik-kecamatan").style.display = "block";
-    
-    let tahun = data.map(d => d.tahun).sort();
-    let nilai = data.map(d => d.EBLUP_ST);
+let tahunList =
+[
+...new Set(
+dataEstimasi.map(
+d=>d.tahun
+))
+]
+.sort();
 
-    Plotly.newPlot("grafik-kecamatan", [{
-        x: tahun,
-        y: nilai,
-        mode: "lines+markers",
-        name: "ST-SAE",
-        line: {shape: 'spline', color: '#2563EB', width: 3},
-        marker: {size: 8}
-    }], {
-        template: "plotly_white",
-        title: `Tren Estimasi ST-SAE ${terbaru.nama_kecamatan_bps}`,
-        margin: {t: 60, b: 100, l: 60, r: 30},
-        xaxis: { automargin: true },
-        yaxis: { automargin: true },
-        legend: { orientation: "h", yanchor: "top", y: -0.2, xanchor: "center", x: 0.5 },
-        hovermode: "x unified",
-        height: 500
-    }, {responsive: true});
 
-    profilKecamatan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+tahunList.forEach(t=>{
+
+
+let option =
+document.createElement(
+"option"
+);
+
+
+option.value=t;
+
+option.text=t;
+
+
+tahunSelect.appendChild(
+option
+);
+
+
+});
+
+
+
+tahunSelect.value =
+Math.max(...tahunList);
+
+
+
+
+let kabSelect =
+document.getElementById(
+"kab-filter"
+);
+
+
+
+let kabList =
+[
+"Semua Kabupaten/Kota"
+];
+
+
+
+let kab =
+[
+...new Set(
+dataEstimasi.map(
+d=>d.kab_kota
+))
+];
+
+
+
+kabList.push(
+...kab
+);
+
+
+
+kabList.forEach(k=>{
+
+
+let option =
+document.createElement(
+"option"
+);
+
+
+option.value=k;
+
+option.text=k;
+
+
+kabSelect.appendChild(
+option
+);
+
+
+});
+
+
+
+tahunSelect.addEventListener(
+"change",
+updateMap
+);
+
+
+
+kabSelect.addEventListener(
+"change",
+updateMap
+);
+
+
+
+document
+.getElementById(
+"variable-filter"
+)
+.addEventListener(
+"change",
+updateMap
+);
+
+
+
+}
+
+
+
+
+// =====================================================
+// GRAFIK DIRECT VS ST-SAE
+// =====================================================
+
+
+function createTrendChart(){
+
+
+let tahun =
+[
+...new Set(
+dataEstimasi.map(
+d=>d.tahun
+))
+]
+.sort();
+
+
+
+let direct=[];
+
+let stsae=[];
+
+
+
+tahun.forEach(t=>{
+
+
+let subset =
+dataEstimasi.filter(
+d=>d.tahun===t
+);
+
+
+
+direct.push(
+mean(
+subset.map(
+d=>d.Direct_Estimate
+)
+)
+);
+
+
+
+stsae.push(
+mean(
+subset.map(
+d=>d.STSAE_M87
+)
+)
+);
+
+
+
+});
+
+
+
+
+Plotly.newPlot(
+
+"grafik-model",
+
+[
+
+
+{
+x:tahun,
+
+y:direct,
+
+name:
+"Direct Estimate",
+
+type:"scatter",
+
+mode:
+"lines+markers"
+
+},
+
+
+{
+x:tahun,
+
+y:stsae,
+
+name:
+"ST-SAE M87",
+
+type:"scatter",
+
+mode:
+"lines+markers"
+
+}
+
+
+],
+
+
+{
+
+title:
+"Perbandingan Rata-rata Estimasi Direct dan ST-SAE M87",
+
+
+template:
+"plotly_white"
+
+}
+
+
+
+);
+
+
+}
+
+// =====================================================
+// TABEL EVALUASI M87
+// =====================================================
+
+
+function createEvaluationTable(){
+
+
+let container =
+document.getElementById(
+"rrmse-table"
+);
+
+
+
+let html = `
+
+
+<table class="data-table">
+
+
+<thead>
+
+<tr>
+
+<th>
+Tahun
+</th>
+
+<th>
+Mean MSE
+</th>
+
+<th>
+Median MSE
+</th>
+
+<th>
+Mean RRMSE
+</th>
+
+<th>
+Median RRMSE
+</th>
+
+<th>
+RRMSE < 25%
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody>
+
+
+`;
+
+
+
+
+dataEvaluasi.forEach(d=>{
+
+
+html += `
+
+
+<tr>
+
+
+<td>
+${d.tahun}
+</td>
+
+
+<td>
+${formatNumber(d.Mean_MSE)}
+</td>
+
+
+<td>
+${formatNumber(d.Median_MSE)}
+</td>
+
+
+<td>
+${d.Mean_RRMSE.toFixed(2)}%
+</td>
+
+
+<td>
+${d.Median_RRMSE.toFixed(2)}%
+</td>
+
+
+<td>
+${d.Proporsi_RRMSE_kurang25.toFixed(2)}%
+</td>
+
+
+</tr>
+
+
+
+`;
+
+
+
+});
+
+
+
+html += `
+
+</tbody>
+
+</table>
+
+
+`;
+
+
+
+container.innerHTML =
+html;
+
+
+}
+
+
+
+
+
+
+
+// =====================================================
+// GRAFIK PERBANDINGAN RRMSE
+// =====================================================
+
+
+function createCompareChart(){
+
+
+
+let tahun =
+dataCompare.map(
+d=>d.tahun
+);
+
+
+
+Plotly.newPlot(
+
+"grafik-rrmse",
+
+
+[
+
+
+{
+
+x:tahun,
+
+y:dataCompare.map(
+d=>d.Mean_RRMSE_Direct
+),
+
+name:
+"Direct Estimate",
+
+type:
+"scatter",
+
+mode:
+"lines+markers"
+
+},
+
+
+{
+
+x:tahun,
+
+y:dataCompare.map(
+d=>d.Mean_RRMSE_M87
+),
+
+name:
+"ST-SAE M87",
+
+type:
+"scatter",
+
+mode:
+"lines+markers"
+
+}
+
+
+],
+
+
+
+{
+
+
+title:
+"Perbandingan Mean RRMSE Direct Estimate dan ST-SAE M87",
+
+
+yaxis:
+
+{
+
+title:
+"RRMSE (%)"
+
+},
+
+
+template:
+"plotly_white"
+
+
+}
+
+
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+// =====================================================
+// TABEL EVALUASI SEMUA MODEL
+// =====================================================
+
+
+function createModelTable(){
+
+
+
+let section =
+document.createElement(
+"section"
+);
+
+
+
+section.className =
+"section";
+
+
+
+section.innerHTML = `
+
+
+<h2>
+Perbandingan Kandidat Model ST-SAE
+</h2>
+
+
+<div class="table-container">
+
+<table class="data-table">
+
+
+<thead>
+
+<tr>
+
+<th>
+Model
+</th>
+
+
+<th>
+AIC
+</th>
+
+
+<th>
+BIC
+</th>
+
+
+<th>
+Mean MSE
+</th>
+
+
+<th>
+Mean RSE
+</th>
+
+
+<th>
+RSE <25%
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody>
+
+
+${
+
+dataModel.map(d=>`
+
+
+<tr>
+
+
+<td>
+${d.Model}
+</td>
+
+
+<td>
+${Number(d.AIC).toFixed(2)}
+</td>
+
+
+<td>
+${Number(d.BIC).toFixed(2)}
+</td>
+
+
+<td>
+${formatNumber(d.Mean_MSE)}
+</td>
+
+
+<td>
+${Number(d.Mean_RSE).toFixed(2)}%
+</td>
+
+
+<td>
+${Number(d["RSE < 25%"]).toFixed(2)}%
+</td>
+
+
+</tr>
+
+
+`).join("")
+
+
+}
+
+
+</tbody>
+
+
+
+</table>
+
+
+</div>
+
+
+`;
+
+
+
+document.body.insertBefore(
+
+section,
+
+document.querySelector(
+"footer"
+)
+
+);
+
+
+}
+
+
+
+
+
+
+
+// =====================================================
+// SPESIFIKASI MODEL
+// =====================================================
+
+
+function createModelSpecification(){
+
+
+
+let section =
+document.createElement(
+"section"
+);
+
+
+
+section.className =
+"section";
+
+
+
+section.innerHTML = `
+
+
+<h2>
+Variabel Penyusun Model
+</h2>
+
+
+
+<div class="table-container">
+
+
+<table class="data-table">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+Model
+</th>
+
+
+<th>
+Jumlah Variabel
+</th>
+
+
+<th>
+Variabel
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody>
+
+
+
+${
+
+
+dataSpesifikasi.map(d=>`
+
+
+<tr>
+
+
+<td>
+${d.Model}
+</td>
+
+
+<td>
+${d["Jumlah Variabel"]}
+</td>
+
+
+<td>
+${d.Variabel}
+</td>
+
+
+</tr>
+
+
+`).join("")
+
+
+
+}
+
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+`;
+
+
+
+document.body.insertBefore(
+
+section,
+
+document.querySelector(
+"footer"
+)
+
+);
+
+
+
+}
+
+
+// =====================================================
+// PETA ST-SAE M87
+// =====================================================
+
+let geojsonLayer;
+
+let selectedYear =
+2018;
+
+let selectedModel =
+"STSAE_M87";
+
+let trendChart;
+
+
+
+// ===============================
+// INISIALISASI MAP
+// ===============================
+
+
+function initializeMap(){
+
+
+map =
+L.map(
+"map"
+).setView(
+
+[
+-7.1,
+113.2
+],
+
+10
+
+);
+
+
+
+L.tileLayer(
+
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+{
+
+maxZoom:18
+
+}
+
+).addTo(map);
+
+
+
+loadGeoJSON();
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// LOAD GEOJSON
+// ===============================
+
+
+function loadGeoJSON(){
+
+
+
+fetch(
+"data/hasil_peta_STSAE_M87.geojson"
+)
+
+
+
+.then(
+response=>response.json()
+)
+
+
+
+.then(
+data=>{
+
+
+geoData =
+data;
+
+
+
+drawMap();
+
+
+
+}
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// WARNA BERDASARKAN NILAI ESTIMASI
+// ===============================
+
+
+function getColor(value){
+
+
+return value > 2000000 ? "#800026" :
+
+value > 1500000 ? "#BD0026" :
+
+value > 1000000 ? "#E31A1C" :
+
+value > 750000 ? "#FC4E2A" :
+
+value > 500000 ? "#FD8D3C" :
+
+value > 300000 ? "#FEB24C" :
+
+"#FFEDA0";
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// STYLE POLYGON
+// ===============================
+
+
+function styleFeature(feature){
+
+
+
+let value;
+
+
+
+if(selectedModel=="Direct_Estimate"){
+
+
+value =
+feature.properties.Direct_Estimate;
+
+
+}
+
+else{
+
+
+value =
+feature.properties[selectedModel];
+
+
+}
+
+
+
+return {
+
+
+fillColor:
+getColor(value),
+
+
+weight:
+1,
+
+
+opacity:
+1,
+
+
+color:
+"white",
+
+
+fillOpacity:
+0.7
+
+
+
 };
 
-// =====================================================
-// COLOR
-// =====================================================
-function getColor(value, variable) {
-    if (!value) return "#E5E7EB";
 
-    if (variable && variable.includes('RRMSE')) {
-        if (value <= 10) return "#DBEAFE"; // Sangat baik
-        if (value <= 25) return "#60A5FA"; // Baik
-        if (value <= 50) return "#2563EB"; // Kurang
-        return "#1E3A8A"; // Sangat Kurang
-    }
 
-    if (value < 1000000) return "#DBEAFE";
-    if (value < 1500000) return "#60A5FA";
-    if (value < 2000000) return "#2563EB";
-    return "#1E3A8A";
 }
 
-// =====================================================
-// UTIL
-// =====================================================
-function mean(arr) {
-    if (!arr || arr.length === 0) return 0;
-    return arr.reduce((a, b) => a + b, 0) / arr.length;
+
+
+
+
+
+
+
+// ===============================
+// GAMBAR PETA
+// ===============================
+
+function drawMap(){
+
+if(geojsonLayer){
+geojsonLayer.remove();
 }
 
-function formatNumber(num) {
-    return Number(num).toLocaleString("id-ID", {
-        maximumFractionDigits: 0
-    });
+let filteredData =
+{
+type:"FeatureCollection",
+features:
+geoData.features.filter(
+feature =>
+feature.properties.tahun
+==
+selectedYear
+)
+};
+
+geojsonLayer =
+L.geoJSON(
+filteredData,
+{
+
+style:
+styleFeature,
+onEachFeature:
+
+function(feature,layer){
+layer.on({
+mouseover:function(){
+layer.setStyle({
+weight:3,
+color:"black"
+});
+},
+
+mouseout:function(){
+geojsonLayer.resetStyle(layer);
+},
+
+click:function(){
+
+showPopup(
+feature.properties,
+layer
+);
 }
 
-function generateInsight() {
-    let avgST = mean(dataset.map(d => d.EBLUP_ST));
-    document.getElementById("insight-text").innerHTML = `
-        Rata-rata estimasi Spasio-Temporal SAE selama periode penelitian adalah:
-        <h3 style="color: #1e40af; font-size: 32px; margin: 15px 0;">Rp ${formatNumber(avgST)}</h3>
-        rupiah per kapita.
-    `;
+
+
+});
+
+
 }
 
-function initializeDashboard() {
-    createFilter();
-    createCharts();
-    createMap();
-    createRanking();
-    generateInsight();
-    createInsight();
-    
-    // Hide empty elements initially
-    document.getElementById("grafik-kecamatan").style.display = "none";
+
+
 }
 
-function createRanking() {
-    let tahun = Math.max(...dataset.map(d => d.tahun));
-    let data = dataset.filter(d => d.tahun == tahun);
-    data.sort((a, b) => b.EBLUP_ST - a.EBLUP_ST);
-    let top = data.slice(0, 10).reverse(); // Reverse for horizontal bar chart
+)
 
-    Plotly.newPlot("ranking", [{
-        y: top.map(d => d.nama_kecamatan_bps),
-        x: top.map(d => d.EBLUP_ST),
-        type: "bar",
-        orientation: 'h',
-        marker: { color: '#2563EB' }
-    }], {
-        template: "plotly_white",
-        title: `10 Kecamatan dengan Estimasi ST-SAE Tertinggi (${tahun})`,
-        margin: {t: 60, b: 90, l: 40, r: 40},
-        xaxis: { automargin: true },
-        yaxis: { automargin: true },
-        height: 500
-    }, {responsive: true});
+.addTo(map);
+
+
+
+map.fitBounds(
+
+geojsonLayer.getBounds()
+
+);
+
+createLegend();
+
 }
 
-function createInsight() {
-    let tahun = Math.max(...dataset.map(d => d.tahun));
-    let data = dataset.filter(d => d.tahun === tahun);
-    let tertinggi = data.sort((a, b) => b.EBLUP_ST - a.EBLUP_ST)[0];
 
-    if (!tertinggi) return;
 
-    let div = document.createElement("div");
-    div.innerHTML = `
-        <p style="margin-top: 15px;">Pada tahun ${tahun}, estimasi ST-SAE tertinggi ditemukan pada Kecamatan <b>${tertinggi.nama_kecamatan_bps}</b> dengan estimasi <b>Rp ${formatNumber(tertinggi.EBLUP_ST)}</b> per kapita.</p>
-    `;
-    document.getElementById("insight-text").appendChild(div);
+// ===============================
+// POPUP
+// ===============================
+
+
+function showPopup(data, layer){
+
+
+
+let direct =
+data.Direct_Estimate;
+
+
+
+let stsae =
+data.STSAE_M87;
+
+
+
+let peningkatan =
+
+(
+(direct-stsae)
+/direct
+*100
+
+).toFixed(2);
+
+
+
+
+let html = `
+
+
+<h3>
+${data.kecamata}
+</h3>
+
+
+Kabupaten:
+${data.kab_kota}
+
+
+<br>
+
+Tahun:
+${data.tahun}
+
+
+<hr>
+
+
+Direct Estimate:
+
+<br>
+
+<b>
+Rp ${formatNumber(direct)}
+</b>
+
+
+<br><br>
+
+
+ST-SAE M87:
+
+<br>
+
+<b>
+Rp ${formatNumber(stsae)}
+</b>
+
+
+
+<br><br>
+
+
+Perubahan:
+
+<br>
+
+${peningkatan}%
+
+
+`;
+
+
+
+L.popup()
+
+.setLatLng(
+map.getCenter()
+)
+.setContent(html)
+.openOn(map);
+
+L.popup()
+
+.setLatLng(
+layer.getBounds().getCenter()
+)
+.setContent(html)
+.openOn(map);
+
 }
 
-// Intersection Observer for scroll animations
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-        }
-    });
-}, { threshold: 0.1 });
+// ===============================
+// LEGEND
+// ===============================
 
-document.querySelectorAll(".fade").forEach(el => observer.observe(el));
+
+function createLegend(){
+
+
+
+let legend =
+L.control(
+{
+position:"bottomright"
+}
+);
+
+
+
+legend.onAdd =
+function(){
+
+
+
+let div =
+L.DomUtil.create(
+"div",
+"legend"
+);
+
+
+
+div.innerHTML=`
+
+<b>
+Pengeluaran per Kapita
+</b>
+
+<br>
+
+> 2 juta
+<br>
+
+1.5 - 2 juta
+<br>
+
+1 - 1.5 juta
+<br>
+
+750 ribu - 1 juta
+<br>
+
+500 - 750 ribu
+<br>
+
+300 - 500 ribu
+
+
+`;
+
+
+
+return div;
+
+
+
+};
+
+
+
+legend.addTo(map);
+
+
+
+}
+
+document
+.getElementById("yearSelect")
+.addEventListener(
+
+"change",
+
+function(e){
+
+
+selectedYear =
+parseInt(e.target.value);
+
+
+
+drawMap();
+
+
+
+}
+
+);
+
+document
+.getElementById("yearSelect")
+.addEventListener(
+
+"change",
+
+function(e){
+
+
+selectedYear =
+parseInt(e.target.value);
+
+
+
+drawMap();
+
+
+
+}
+
+);
+
+function createTrendChart(kode){
+
+
+let dataKec =
+
+geoData.features.filter(
+
+f =>
+
+f.properties.kode_kecamatan_bps
+==
+kode
+
+);
+
+
+
+
+let tahun =
+dataKec.map(
+
+f=>f.properties.tahun
+
+);
+
+
+
+let estimasi =
+dataKec.map(
+
+f=>f.properties.STSAE_M87
+
+);
+
+
+
+if(trendChart){
+
+trendChart.destroy();
+
+}
+
+
+
+trendChart =
+
+new Chart(
+
+document
+.getElementById("trendChart"),
+
+
+{
+
+
+type:"line",
+
+
+data:{
+
+
+labels:tahun,
+
+
+datasets:[
+
+{
+
+
+label:"ST-SAE M87",
+
+data:estimasi
+
+}
+
+
+]
+
+
+}
+
+
+
+}
+
+);
+
+
+}
+
+function mean(arr){
+
+return arr.reduce(
+(a,b)=>a+b,
+0
+)
+/ arr.length;
+
+}
+
+function formatNumber(value){
+
+return Number(value)
+.toLocaleString(
+"id-ID"
+);
+
+}
