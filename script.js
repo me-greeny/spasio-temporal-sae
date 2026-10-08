@@ -2,61 +2,43 @@
 // KONFIGURASI FILE DATA
 // =====================================================
 
-
 const path = "data/";
-
 
 const fileEstimasi =
     path + 
     "hasil_estimasi_STSAE_M87_level_kecamatan.csv";
 
-
 const fileEvaluasi =
     path +
     "evaluasi_MSE_RRMSE_M87_tahunan.csv";
-
 
 const fileCompare =
     path +
     "perbandingan_RRMSE_Direct_vs_M87.csv";
 
-
 const fileModel =
     path +
     "evaluasi_semua_model_STSAE.csv";
-
 
 const fileSpesifikasi =
     path +
     "spesifikasi_model_STSAE.csv";
 
-
 const geojsonFile =
     path +
     "hasil_peta_STSAE_M87_simple.geojson";
-
-
-
 
 // =====================================================
 // GLOBAL VARIABLE
 // =====================================================
 
-
 let dataEstimasi = [];
-
 let dataEvaluasi = [];
-
 let dataCompare = [];
-
 let dataModel = [];
-
 let dataSpesifikasi = [];
-
 let geoData;
-
 let map;
-
 let geoLayer;
 
 
@@ -264,6 +246,7 @@ function cleanData(){
 
 function initializeDashboard(){
     createFilter();
+    createTrendChart();
 
     createEvaluationTable();
 
@@ -488,68 +471,39 @@ selectedYear
 .filter(
 
 f =>
-
 kab=="all"
-
 ||
-
 f.properties.kab_kota
 ==
 kab
-
 )
 
 .map(
-
 f=>
-
 f.properties.kecamata
-
 );
 
-
-
 kecamatan = [
-
 ...new Set(kecamatan)
-
 ].sort();
 
-
-
-
-
 kecamatan.forEach(kec=>{
-
-
 let option =
 document.createElement(
 "option"
 );
 
-
 option.value=kec;
-
 option.text=kec;
-
-
 kecSelect.appendChild(option);
-
-
-
 });
 
-
 }
-
 // =====================================================
 // GRAFIK DIRECT VS ST-SAE
 // =====================================================
 
-
 function createTrendChart(){
-
-
 let tahun =
 [
 ...new Set(
@@ -559,23 +513,14 @@ d=>d.tahun
 ]
 .sort();
 
-
-
 let direct=[];
-
 let stsae=[];
-
-
-
 tahun.forEach(t=>{
-
 
 let subset =
 dataEstimasi.filter(
 d=>d.tahun===t
 );
-
-
 
 direct.push(
 mean(
@@ -585,8 +530,6 @@ d=>d.Direct_Estimate
 )
 );
 
-
-
 stsae.push(
 mean(
 subset.map(
@@ -594,13 +537,7 @@ d=>d.STSAE_M87
 )
 )
 );
-
-
-
 });
-
-
-
 
 Plotly.newPlot(
 
@@ -631,7 +568,7 @@ x:tahun,
 y:stsae,
 
 name:
-"ST-SAE M87",
+"Spasio-Temporal SAE",
 
 type:"scatter",
 
@@ -647,7 +584,7 @@ mode:
 {
 
 title:
-"Perbandingan Rata-rata Estimasi Direct dan ST-SAE M87",
+"Perbandingan Rata-rata Estimasi Langsung dan Spasio-Temporal SAE",
 
 
 template:
@@ -852,217 +789,108 @@ x:tahun,
 y:dataCompare.map(
 d=>d.Mean_RRMSE_M87
 ),
-
 name:
-"ST-SAE M87",
-
+"Spasio-Temporal SAE",
 type:
 "scatter",
-
 mode:
 "lines+markers"
-
 }
-
-
 ],
 
-
-
 {
-
-
 title:
-"Perbandingan Mean RRMSE Direct Estimate dan ST-SAE M87",
-
+"Perbandingan Mean RRMSE Estimasi Langsung dan Spasio-Temporal SAE",
 
 yaxis:
-
 {
-
 title:
 "RRMSE (%)"
-
 },
-
-
 template:
 "plotly_white"
 
-
 }
-
-
-
 );
 
-
-
 }
-
-
-
-
-
-
-
 
 // =====================================================
 // TABEL EVALUASI SEMUA MODEL
 // =====================================================
-
-
 function createModelTable(){
-
-
 
 let section =
 document.createElement(
 "section"
 );
 
-
-
 section.className =
-"section";
-
-
-
+"section compact-section";
 section.innerHTML = `
-
-
 <h2>
-Perbandingan Kandidat Model ST-SAE
+Perbandingan Kandidat Model Spasio-Temporal SAE
 </h2>
-
-
 <div class="table-container">
-
 <table class="data-table">
-
-
 <thead>
-
 <tr>
-
 <th>
 Model
 </th>
-
-
 <th>
 AIC
 </th>
-
-
 <th>
 BIC
 </th>
-
-
 <th>
 Mean MSE
 </th>
-
-
 <th>
 Mean RSE
 </th>
-
-
 <th>
 RSE <25%
 </th>
-
-
 </tr>
-
-
 </thead>
-
-
 <tbody>
-
-
 ${
-
 dataModel.map(d=>`
 
-
 <tr>
-
-
 <td>
 ${d.Model}
 </td>
-
-
 <td>
 ${Number(d.AIC).toFixed(2)}
 </td>
-
-
 <td>
 ${Number(d.BIC).toFixed(2)}
 </td>
-
-
 <td>
 ${formatNumber(d.Mean_MSE)}
 </td>
-
-
 <td>
 ${Number(d.Mean_RSE).toFixed(2)}%
 </td>
-
-
 <td>
 ${Number(d["RSE < 25%"]).toFixed(2)}%
 </td>
-
-
 </tr>
-
-
 `).join("")
 
-
 }
-
-
 </tbody>
-
-
-
 </table>
-
-
 </div>
-
-
 `;
 
-
-
-document.body.insertBefore(
-
-section,
-
-document.querySelector(
-"footer"
-)
-
-);
-
-
+document
+.getElementById("dynamic-content")
+.appendChild(section);
 }
-
-
-
-
-
-
 
 // =====================================================
 // SPESIFIKASI MODEL
@@ -1078,118 +906,62 @@ document.createElement(
 "section"
 );
 
-
-
 section.className =
-"section";
-
-
+"section compact-section";
 
 section.innerHTML = `
-
 
 <h2>
 Variabel Penyusun Model
 </h2>
 
-
-
 <div class="table-container">
-
-
 <table class="data-table">
 
-
 <thead>
-
-
 <tr>
-
-
 <th>
 Model
 </th>
-
-
 <th>
 Jumlah Variabel
 </th>
-
-
 <th>
 Variabel
 </th>
-
-
 </tr>
-
-
 </thead>
-
-
 <tbody>
-
-
-
 ${
 
-
 dataSpesifikasi.map(d=>`
-
-
 <tr>
-
-
 <td>
 ${d.Model}
 </td>
-
-
 <td>
 ${d["Jumlah Variabel"]}
 </td>
-
-
 <td>
 ${d.Variabel}
 </td>
-
-
 </tr>
-
-
 `).join("")
-
-
-
 }
-
-
-
 </tbody>
 
-
 </table>
-
-
 </div>
-
-
 `;
 
 
-
 document.body.insertBefore(
-
 section,
-
 document.querySelector(
 "footer"
 )
 
 );
-
-
 
 }
 
@@ -1558,49 +1330,27 @@ let peningkatan =
 (direct-stsae)
 /direct
 *100
-
 ).toFixed(2);
 
-
-
-
 let html = `
-
-
 <h3>
 ${data.kecamata}
 </h3>
-
-
 Kabupaten:
 ${data.kab_kota}
-
-
 <br>
-
 Tahun:
 ${data.tahun}
-
-
 <hr>
-
-
 Direct Estimate:
-
 <br>
-
 <b>
 Rp ${formatNumber(direct)}
 </b>
-
-
 <br><br>
 
-
-ST-SAE M87:
-
+Spasio-Temporal SAE:
 <br>
-
 <b>
 Rp ${formatNumber(stsae)}
 </b>
@@ -1645,9 +1395,6 @@ layer.getBounds().getCenter()
 
 
 function createLegend(){
-
-
-
 let legend =
 L.control(
 {
@@ -1655,20 +1402,13 @@ position:"bottomright"
 }
 );
 
-
-
 legend.onAdd =
 function(){
-
-
-
 let div =
 L.DomUtil.create(
 "div",
 "legend"
 );
-
-
 
 div.innerHTML=`
 
@@ -1677,41 +1417,23 @@ Pengeluaran per Kapita
 </b>
 
 <br>
-
 > 2 juta
 <br>
-
 1.5 - 2 juta
 <br>
-
 1 - 1.5 juta
 <br>
-
 750 ribu - 1 juta
 <br>
-
 500 - 750 ribu
 <br>
-
 300 - 500 ribu
-
-
 `;
 
-
-
 return div;
-
-
-
 };
 
-
-
 legend.addTo(map);
-
-
-
 }
 
 document
@@ -1800,45 +1522,27 @@ trendChart.destroy();
 
 }
 
-
-
 trendChart =
 
 new Chart(
-
 document
 .getElementById("trendChart"),
-
-
 {
-
-
 type:"line",
 
-
 data:{
-
-
 labels:tahun,
-
-
 datasets:[
-
 {
-
-
-label:"ST-SAE M87",
+label:"Spasio-Temporal SAE",
 
 data:estimasi
 
 }
 
-
 ]
 
-
 }
-
 
 
 }
@@ -1881,34 +1585,27 @@ document.createElement(
 
 
 section.className =
-"section";
+"section compact-section";
 
 
 
 section.innerHTML = `
 
 <div class="fade">
-
-
 <h2>
 Ringkasan Hasil Penelitian
 </h2>
-
-
 <div class="conclusion">
 
-
 <p>
-Model ST-SAE M87 dipilih sebagai model estimasi karena 
+Model M87 dipilih sebagai model estimasi Spasio-Temporal SAE karena 
 memberikan keseimbangan antara ketepatan model dan ukuran kesalahan estimasi.
 </p>
-
 
 <p>
 Evaluasi dilakukan menggunakan ukuran MSE dan RRMSE untuk melihat 
 tingkat presisi estimasi pengeluaran per kapita pada tingkat kecamatan.
 </p>
-
 
 <p>
 Penggunaan informasi spasial dan temporal memungkinkan model 
@@ -1916,7 +1613,6 @@ memanfaatkan hubungan antarwilayah dan perubahan antarwaktu
 sehingga menghasilkan estimasi yang lebih stabil dibandingkan 
 estimasi langsung.
 </p>
-
 
 </div>
 

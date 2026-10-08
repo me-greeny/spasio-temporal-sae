@@ -460,3 +460,10 @@ footer {
     .section { padding: 60px 5%; }
     .section h2 { font-size: 32px; }
 }
+
+.compact-section {
+    min-height: auto;
+    justify-content: flex-start;
+    padding-top:80px;
+    padding-bottom:80px;
+}
