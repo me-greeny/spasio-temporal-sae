@@ -107,7 +107,7 @@ async function loadAllData(){
 
 
 
-        geojsonData =
+        geoData =
             await fetch(geojsonFile)
             .then(res=>res.json());
 
@@ -276,6 +276,7 @@ function initializeDashboard(){
     initializeMap();
 
     createInsight();
+    activateFade();
 }
 
 
@@ -1245,10 +1246,7 @@ maxZoom:18
 
 ).addTo(map);
 
-
-
-loadGeoJSON();
-
+drawMap();
 
 }
 
@@ -1866,5 +1864,121 @@ return Number(value)
 .toLocaleString(
 "id-ID"
 );
+
+}
+
+// =====================================================
+// INSIGHT HASIL PENELITIAN
+// =====================================================
+
+function createInsight(){
+
+
+let section =
+document.createElement(
+"section"
+);
+
+
+section.className =
+"section";
+
+
+
+section.innerHTML = `
+
+<div class="fade">
+
+
+<h2>
+Ringkasan Hasil Penelitian
+</h2>
+
+
+<div class="conclusion">
+
+
+<p>
+Model ST-SAE M87 dipilih sebagai model estimasi karena 
+memberikan keseimbangan antara ketepatan model dan ukuran kesalahan estimasi.
+</p>
+
+
+<p>
+Evaluasi dilakukan menggunakan ukuran MSE dan RRMSE untuk melihat 
+tingkat presisi estimasi pengeluaran per kapita pada tingkat kecamatan.
+</p>
+
+
+<p>
+Penggunaan informasi spasial dan temporal memungkinkan model 
+memanfaatkan hubungan antarwilayah dan perubahan antarwaktu 
+sehingga menghasilkan estimasi yang lebih stabil dibandingkan 
+estimasi langsung.
+</p>
+
+
+</div>
+
+
+</div>
+
+`;
+
+
+
+document.body.insertBefore(
+
+section,
+
+document.querySelector(
+"footer"
+)
+
+);
+
+
+}
+
+function activateFade(){
+
+
+const observer =
+new IntersectionObserver(
+
+entries=>{
+
+
+entries.forEach(
+entry=>{
+
+
+if(entry.isIntersecting){
+
+entry.target.classList.add(
+"show"
+);
+
+}
+
+
+}
+
+);
+
+
+}
+
+
+);
+
+
+
+document
+.querySelectorAll(".fade")
+.forEach(
+el=>observer.observe(el)
+);
+
 
 }
