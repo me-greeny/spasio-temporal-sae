@@ -286,122 +286,35 @@ function initializeDashboard(){
 
 function createFilter(){
 
-let tahunList =
-[
-...new Set(
-dataEstimasi.map(
-d=>d.tahun
-))
-]
-.sort();
 
-
-
-tahunList.forEach(t=>{
-
-
-let option =
-document.createElement(
-"option"
-);
-
-
-option.value=t;
-
-option.text=t;
-
-
-tahunSelect.appendChild(
-option
-);
-
-
-});
-
-
-
-tahunSelect.value =
-Math.max(...tahunList);
-
-
-
-
-let kabSelect =
+const yearSelect =
 document.getElementById(
-"kab-filter"
+"yearSelect"
 );
 
 
 
-let kabList =
-[
-"Semua Kabupaten/Kota"
-];
+yearSelect.addEventListener(
 
-
-
-let kab =
-[
-...new Set(
-dataEstimasi.map(
-d=>d.kab_kota
-))
-];
-
-
-
-kabList.push(
-...kab
-);
-
-
-
-kabList.forEach(k=>{
-
-
-let option =
-document.createElement(
-"option"
-);
-
-
-option.value=k;
-
-option.text=k;
-
-
-kabSelect.appendChild(
-option
-);
-
-
-});
-
-
-
-tahunSelect.addEventListener(
 "change",
-updateMap
+
+function(e){
+
+
+selectedYear =
+Number(
+e.target.value
 );
 
 
 
-kabSelect.addEventListener(
-"change",
-updateMap
+drawMap();
+
+
+
+}
+
 );
-
-
-
-document
-.getElementById(
-"variable-filter"
-)
-.addEventListener(
-"change",
-updateMap
-);
-
 
 
 }
