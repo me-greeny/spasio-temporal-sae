@@ -283,7 +283,6 @@ function initializeDashboard(){
 // FILTER
 // =====================================================
 
-
 function createFilter(){
 
 
@@ -292,6 +291,68 @@ document.getElementById(
 "yearSelect"
 );
 
+
+const kabSelect =
+document.getElementById(
+"kab-filter"
+);
+
+
+const kecSelect =
+document.getElementById(
+"kec-filter"
+);
+
+
+
+// ===========================
+// ISI FILTER KABUPATEN
+// ===========================
+
+
+let kabupaten = [
+
+...new Set(
+
+geoData.features.map(
+
+f =>
+f.properties.kab_kota
+
+)
+
+)
+
+].sort();
+
+
+
+kabupaten.forEach(kab=>{
+
+
+let option =
+document.createElement(
+"option"
+);
+
+
+option.value = kab;
+
+option.text = kab;
+
+
+kabSelect.appendChild(option);
+
+
+});
+
+
+
+
+
+// ===========================
+// EVENT TAHUN
+// ===========================
 
 
 yearSelect.addEventListener(
@@ -308,6 +369,9 @@ e.target.value
 
 
 
+updateKecamatanFilter();
+
+
 drawMap();
 
 
@@ -317,10 +381,165 @@ drawMap();
 );
 
 
+
+
+
+// ===========================
+// EVENT KABUPATEN
+// ===========================
+
+
+kabSelect.addEventListener(
+
+"change",
+
+function(){
+
+
+updateKecamatanFilter();
+
+
+drawMap();
+
+
+
 }
 
+);
 
 
+
+
+
+// ===========================
+// EVENT KECAMATAN
+// ===========================
+
+
+kecSelect.addEventListener(
+
+"change",
+
+function(){
+
+
+drawMap();
+
+
+}
+
+);
+
+
+
+}
+
+function updateKecamatanFilter(){
+
+
+const kabSelect =
+document.getElementById(
+"kab-filter"
+);
+
+
+
+const kecSelect =
+document.getElementById(
+"kec-filter"
+);
+
+
+
+let kab =
+kabSelect.value;
+
+
+
+
+// reset
+
+kecSelect.innerHTML = `
+
+<option value="all">
+Semua Kecamatan
+</option>
+
+`;
+
+
+
+
+
+let kecamatan =
+geoData.features
+
+.filter(
+
+f =>
+
+f.properties.tahun
+==
+selectedYear
+
+)
+
+.filter(
+
+f =>
+
+kab=="all"
+
+||
+
+f.properties.kab_kota
+==
+kab
+
+)
+
+.map(
+
+f=>
+
+f.properties.kecamata
+
+);
+
+
+
+kecamatan = [
+
+...new Set(kecamatan)
+
+].sort();
+
+
+
+
+
+kecamatan.forEach(kec=>{
+
+
+let option =
+document.createElement(
+"option"
+);
+
+
+option.value=kec;
+
+option.text=kec;
+
+
+kecSelect.appendChild(option);
+
+
+
+});
+
+
+}
 
 // =====================================================
 // GRAFIK DIRECT VS ST-SAE
@@ -1201,67 +1420,113 @@ geojsonLayer.remove();
 
 let filteredData =
 {
+
 type:"FeatureCollection",
+
+
 features:
+
 geoData.features.filter(
-feature =>
-feature.properties.tahun
+
+feature=>{
+
+
+let prop =
+feature.properties;
+
+
+
+let tahunOK =
+prop.tahun
 ==
-selectedYear
+selectedYear;
+
+
+
+let kab =
+document
+.getElementById(
+"kab-filter"
 )
+.value;
+
+
+
+let kec =
+document
+.getElementById(
+"kec-filter"
+)
+.value;
+
+
+
+let kabOK =
+(
+kab=="all"
+||
+prop.kab_kota==kab
+);
+
+
+
+let kecOK =
+(
+kec=="all"
+||
+prop.kecamata==kec
+);
+
+
+
+
+return (
+
+tahunOK
+
+&&
+
+kabOK
+
+&&
+
+kecOK
+
+);
+
+
+
+}
+
+)
+
+
 };
 
-geojsonLayer =
-L.geoJSON(
-filteredData,
-{
+geojsonLayer = L.geoJSON(filteredData, {
+  style: styleFeature,
+  onEachFeature: function(feature, layer) {
+    layer.on({
+      mouseover: function() {
+        layer.setStyle({
+          weight: 3,
+          color: "black"
+        });
+      },
 
-style:
-styleFeature,
-onEachFeature:
+      mouseout: function() {
+        geojsonLayer.resetStyle(layer);
+      },
 
-function(feature,layer){
-layer.on({
-mouseover:function(){
-layer.setStyle({
-weight:3,
-color:"black"
-});
-},
-
-mouseout:function(){
-geojsonLayer.resetStyle(layer);
-},
-
-click:function(){
-
-showPopup(
-feature.properties,
-layer
-);
-}
-
-
-
-});
-
-
-}
-
-
-
-}
-
-)
-
-.addTo(map);
-
-
+      click: function() {
+        showPopup(feature.properties, layer);
+      }
+    });
+  }
+}).addTo(map);
 
 map.fitBounds(
-
-geojsonLayer.getBounds()
-
+  geojsonLayer.getBounds()
 );
 
 createLegend();

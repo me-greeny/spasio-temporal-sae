@@ -366,25 +366,26 @@ Eksplorasi hasil estimasi berdasarkan wilayah kecamatan dan tahun.
 
 <div class="map-control">
 
-
 <label>
 Pilih Tahun:
 </label>
 
 <select id="yearSelect">
 
-<option>2018</option>
-<option>2019</option>
-<option>2020</option>
-<option>2021</option>
-<option>2022</option>
-<option>2023</option>
-<option>2024</option>
-<option>2025</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option value="2024">2024</option>
+<option value="2025">2025</option>
 
 </select>
+
 </div>
-</div>
+
+
 
 <div>
 
@@ -392,36 +393,11 @@ Pilih Tahun:
 Kabupaten/Kota:
 </label>
 
-<select id="kab-filter"></select>
+<select id="kab-filter">
 
-</div>
-
-
-
-<div>
-
-<label>
-Variabel:
-</label>
-
-
-<select id="variable-filter">
-
-
-<option value="Direct_Estimate">
-Direct Estimate
+<option value="all">
+Semua Kabupaten/Kota
 </option>
-
-
-<option value="STSAE_M87">
-ST-SAE M87
-</option>
-
-
-<option value="RRMSE_M87">
-RRMSE M87
-</option>
-
 
 </select>
 
@@ -429,8 +405,28 @@ RRMSE M87
 </div>
 
 
+
+
+<div>
+
+<label>
+Kecamatan:
+</label>
+
+<select id="kec-filter">
+
+<option value="all">
+Semua Kecamatan
+</option>
+
+</select>
+
+
 </div>
 
+
+
+</div>
 
 
 <div id="map"></div>
