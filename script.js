@@ -33,7 +33,7 @@ const fileSpesifikasi =
 
 const geojsonFile =
     path +
-    "hasil_peta_STSAE_M87.geojson";
+    "hasil_peta_STSAE_M87_simple.geojson";
 
 
 
@@ -1136,7 +1136,7 @@ function loadGeoJSON(){
 
 
 fetch(
-"data/hasil_peta_STSAE_M87.geojson"
+"data/hasil_peta_STSAE_M87_simple.geojson"
 )
 
 
