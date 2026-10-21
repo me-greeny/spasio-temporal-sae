@@ -1,496 +1,151 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>
-Estimasi Pengeluaran Per Kapita Jawa Timur dengan Spasio-Temporal SAE
-</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Web story penelitian estimasi rata-rata pengeluaran per kapita tingkat kecamatan di Jawa Timur, 2018–2025, menggunakan Spasio-Temporal Small Area Estimation.">
+  <title>Estimasi Pengeluaran per Kapita Kecamatan | Spasio-Temporal SAE Jawa Timur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script defer src="script.js"></script>
 </head>
-
 <body>
-
-<!-- NAVBAR -->
-
-<nav class="navbar">
-
-<div class="logo">
-Spasio-Temporal SAE
-</div>
-
-<div class="nav-menu">
-
-<a href="#beranda">
-Beranda
-</a>
-
-
-<a href="#metodologi">
-Metodologi
-</a>
-
-
-<a href="#hasil">
-Hasil
-</a>
-
-
-<a href="#evaluasi">
-Evaluasi
-</a>
-
-
-<a href="#peta">
-Peta
-</a>
-
-
-<a href="#kesimpulan">
-Kesimpulan
-</a>
-
-
-</div>
-
-</nav>
-
-
-
-<!-- HERO -->
-
-<section id="beranda" class="hero">
-
-<div class="fade">
-
-
-<h1>
-Estimasi Rata-rata Pengeluaran Per Kapita Tingkat Kecamatan di Jawa Timur
-</h1>
-
-
-<h2>
-Menggunakan Spatio-Temporal Small Area Estimation (SAE)
-</h2>
-
-
-<p>
-Periode observasi:
-<strong>
-2018 - 2025
-</strong>
-</p>
-
-
-
-<div class="stat-container">
-
-
-<div class="stat-card">
-
-<h3>
-661
-</h3>
-
-<p>
-Kecamatan
-</p>
-
-</div>
-
-
-
-<div class="stat-card">
-
-<h3>
-8
-</h3>
-
-<p>
-Tahun Observasi
-</p>
-
-</div>
-
-
-
-<div class="stat-card">
-
-<h3>
-M87
-</h3>
-
-<p>
-Model Terpilih
-</p>
-
-</div>
-
-
-</div>
-
-
-</div>
-
-</section>
-
-
-
-
-
-<!-- LATAR BELAKANG -->
-
-
-<section class="section" id="latar-belakang">
-
-
-<div class="fade">
-
-
-<h2>
-Latar Belakang
-</h2>
-
-
-<p>
-Estimasi pengeluaran per kapita pada tingkat kecamatan menghadapi keterbatasan jumlah sampel sehingga estimasi langsung memiliki variasi ketelitian antar wilayah.
-</p>
-
-
-<p>
-Pendekatan Small Area Estimation memanfaatkan informasi penyerta berupa karakteristik sosial ekonomi, penginderaan jauh, serta hubungan spasial dan temporal untuk menghasilkan estimasi yang lebih presisi.
-</p>
-
-
-<div class="highlight">
-
-Direct Estimate
-→
-Auxiliary Variables
-→
-Spasio-Temporal SAE
-→
-EBLUP
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- METODOLOGI -->
-
-
-<section class="section" id="metodologi">
-
-
-<div class="fade">
-
-
-<h2>
-Metodologi Penelitian
-</h2>
-
-
-<div class="workflow">
-
-
-<div>
-Direct Estimate
-</div>
-
-
-<div>
-+
-</div>
-
-
-<div>
-Variabel Penyerta
-</div>
-
-
-<div>
-+
-</div>
-
-
-<div>
-Efek Spasial
-</div>
-
-
-<div>
-+
-</div>
-
-
-<div>
-Efek Temporal
-</div>
-
-
-<div>
-→
-</div>
-
-
-<div>
-Spasio-Temporal SAE
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- HASIL -->
-
-
-<section class="section" id="hasil">
-
-
-<div class="fade">
-
-
-<h2>
-Hasil Estimasi Spasio-Temporal SAE
-</h2>
-
-
-<p>
-Perbandingan rata-rata pengeluaran per kapita antara estimasi langsung dan hasil estimasi Spasio-Temporal SAE.
-</p>
-
-
-<div id="grafik-model" class="chart"></div>
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- EVALUASI -->
-
-
-<section class="section" id="evaluasi">
-
-
-<div class="fade">
-
-
-<h2>
-Evaluasi Ketelitian Model
-</h2>
-
-
-<p>
-Evaluasi dilakukan menggunakan Mean MSE, Median MSE, RRMSE, dan proporsi wilayah dengan RRMSE kurang dari 25%.
-</p>
-
-
-<div id="rrmse-table" class="table-container"></div>
-
-
-
-<div id="grafik-rrmse" class="chart"></div>
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- PETA -->
-
-
-<section class="section" id="peta">
-
-
-<div class="fade">
-
-
-<h2>
-Sebaran Estimasi Spasio-Temporal SAE
-</h2>
-
-
-<p>
-Eksplorasi hasil estimasi berdasarkan wilayah kecamatan dan tahun.
-</p>
-
-
-
-<div class="filter-container">
-
-<div class="map-control">
-
-<label>
-Pilih Tahun:
-</label>
-
-<select id="yearSelect">
-
-<option value="2018">2018</option>
-<option value="2019">2019</option>
-<option value="2020">2020</option>
-<option value="2021">2021</option>
-<option value="2022">2022</option>
-<option value="2023">2023</option>
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-
-</select>
-
-</div>
-
-
-
-<div>
-
-<label>
-Kabupaten/Kota:
-</label>
-
-<select id="kab-filter">
-
-<option value="all">
-Semua Kabupaten/Kota
-</option>
-
-</select>
-
-
-</div>
-
-
-
-
-<div>
-
-<label>
-Kecamatan:
-</label>
-
-<select id="kec-filter">
-
-<option value="all">
-Semua Kecamatan
-</option>
-
-</select>
-
-
-</div>
-
-
-
-</div>
-
-
-<div id="map"></div>
-
-
-<div id="profil-kecamatan" class="profil-card"></div>
-
-
-<div id="grafik-kecamatan" class="chart"></div>
-
-<div class="chart-box">
-
-<h3>
-Perkembangan Estimasi Kecamatan
-</h3>
-
-
-<canvas id="trendChart"></canvas>
-
-
-</div>
-
-</div>
-
-
-</section>
-
-
-<div id="dynamic-content"></div>
-
-
-<!-- KESIMPULAN -->
-<section class="section" id="kesimpulan">
-
-<div class="fade">
-<h2>
-Kesimpulan
-</h2>
-<div class="conclusion">
-
-<p>
-Model Spasio-Temporal SAE menghasilkan estimasi pengeluaran per kapita tingkat kecamatan dengan mempertimbangkan informasi spasial dan temporal.
-</p>
-<p>
-Hasil evaluasi menunjukkan bahwa model mampu meningkatkan ketelitian estimasi dibandingkan Direct Estimate berdasarkan ukuran RRMSE.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<footer>
-
-Web Story Penelitian
-<br>
-Spatio-Temporal Small Area Estimation Jawa Timur
-
-</footer>
-
-<script src="script.js"></script>
-
-
+  <a class="skip-link" href="#beranda">Lewati ke konten</a>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigasi utama">
+      <a class="brand" href="#beranda"><span class="brand-mark">ST</span><span>SAE Jawa Timur</span></a>
+      <div class="nav-menu">
+        <a href="#beranda">Beranda</a>
+        <a href="#latar-belakang">Latar Belakang</a>
+        <a href="#metodologi">Metodologi</a>
+        <a href="#hasil">Hasil</a>
+        <a href="#evaluasi">Evaluasi</a>
+        <a href="#peta">Eksplorasi</a>
+        <a href="#kesimpulan">Kesimpulan</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section id="beranda" class="hero">
+      <div class="container hero-content">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Web Story Penelitian · Jawa Timur · 2018–2025</p>
+        <h1>Melihat Kesejahteraan Lebih Dekat, Hingga Tingkat Kecamatan</h1>
+        <p class="hero-subtitle">Pendekatan <em>Spatio-Temporal Small Area Estimation</em> untuk mengestimasi rata-rata pengeluaran per kapita per bulan di Provinsi Jawa Timur.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#hasil">Jelajahi hasil <span aria-hidden="true">↗</span></a><a class="button button-outline" href="#metodologi">Pelajari metode</a></div>
+        <div class="stat-container" aria-label="Cakupan penelitian">
+          <div class="stat-card"><span class="stat-value" id="stat-kecamatan">661</span><span class="stat-label">Kecamatan dalam penelitian</span></div>
+          <div class="stat-card"><span class="stat-value" id="stat-tahun">8</span><span class="stat-label">Tahun pengamatan</span></div>
+          <div class="stat-card"><span class="stat-value">7</span><span class="stat-label">Variabel model terpilih</span></div>
+        </div>
+        <p id="data-status" class="data-status" role="status" aria-live="polite">Memeriksa sumber data penelitian…</p>
+      </div>
+    </section>
+
+    <section id="latar-belakang" class="section section-alt">
+      <div class="container narrow">
+        <span class="section-kicker">01 / Mengapa penelitian ini penting?</span>
+        <h2>Mengapa diperlukan estimasi untuk wilayah kecil?</h2>
+        <p>Rata-rata pengeluaran per kapita merupakan salah satu indikator yang dapat digunakan untuk menggambarkan kondisi sosial ekonomi masyarakat. Informasi pada tingkat kecamatan diperlukan agar perbedaan antarkawasan tidak tertutup oleh angka agregat kabupaten/kota.</p>
+        <p>Survei Sosial Ekonomi Nasional (Susenas) dirancang terutama untuk menghasilkan estimasi pada tingkat wilayah yang lebih luas. Pada beberapa kecamatan, ukuran sampel yang terbatas menyebabkan estimasi langsung memiliki ketidakpastian relatif tinggi. Penambahan sampel secara konvensional memerlukan biaya dan sumber daya yang besar.</p>
+        <p>Penelitian ini memanfaatkan <strong>Small Area Estimation (SAE)</strong> berbasis informasi survei, Potensi Desa (Podes), dan citra satelit. Keterkaitan geografis antarkecamatan dan perubahan antartahun dimasukkan melalui pendekatan spasio-temporal.</p>
+        <div class="insight-strip"><strong>Pertanyaan penelitian</strong><p>Apakah model spasio-temporal SAE dapat menghasilkan estimasi rata-rata pengeluaran per kapita tingkat kecamatan yang lebih presisi daripada estimasi langsung?</p></div>
+        <h3>Tujuan penelitian</h3>
+        <ol class="purpose-list">
+          <li>Mengeksplorasi hasil estimasi langsung tingkat kecamatan selama 2018–2025.</li>
+          <li>Menghasilkan estimasi tidak langsung dengan integrasi data Podes dan citra satelit.</li>
+          <li>Membandingkan hasil serta ketelitian estimasi langsung dan estimasi model spasio-temporal SAE.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="metodologi" class="section">
+      <div class="container">
+        <span class="section-kicker">02 / Bagaimana penelitian dilakukan?</span>
+        <h2>Metodologi penelitian</h2>
+        <p class="section-lead">Unit analisis mencakup 661 dari 666 kecamatan di Jawa Timur pada periode 2018–2025. Lima kecamatan tidak disertakan karena tidak tercakup dalam sampel Susenas Maret 2025. Penelitian mengikuti kerangka <strong>CRISP-DM</strong> dan menerapkan model area-level Fay-Herriot dengan penduga EBLUP spasio-temporal.</p>
+        <h3>Tiga kelompok sumber data</h3>
+        <div class="card-grid three">
+          <article class="info-card"><div class="card-icon" aria-hidden="true">01</div><h4>Susenas</h4><p>Rata-rata pengeluaran per kapita per bulan, estimasi langsung, dan varians sampling berdasarkan desain survei kompleks.</p></article>
+          <article class="info-card"><div class="card-icon" aria-hidden="true">02</div><h4>Potensi Desa (Podes)</h4><p>Informasi fasilitas ekonomi dan pendidikan, serta karakteristik kelistrikan sebagai kandidat variabel penyerta.</p></article>
+          <article class="info-card"><div class="card-icon" aria-hidden="true">03</div><h4>Citra satelit</h4><p>NTL (VIIRS), LST (MODIS), NDVI dan NDBI (Sentinel-2), serta CO (Sentinel-5P) melalui Google Earth Engine.</p></article>
+        </div>
+        <h3>Enam tahap CRISP-DM</h3>
+        <div class="steps">
+          <div class="step"><span>01</span><div><strong>Business understanding</strong><p>Merumuskan kebutuhan informasi statistik tingkat kecamatan.</p></div></div>
+          <div class="step"><span>02</span><div><strong>Data understanding</strong><p>Mengeksplorasi estimasi langsung, data Podes, dan citra satelit.</p></div></div>
+          <div class="step"><span>03</span><div><strong>Data preparation</strong><p>Harmonisasi kode wilayah, pembentukan data panel, dan matriks pembobot spasial.</p></div></div>
+          <div class="step"><span>04</span><div><strong>Modeling</strong><p>Estimasi model Fay-Herriot spasio-temporal dengan EBLUP dan seleksi variabel.</p></div></div>
+          <div class="step"><span>05</span><div><strong>Evaluation</strong><p>Menilai ketelitian melalui MSE, RRMSE, dan persentase wilayah dengan RRMSE di bawah 25%.</p></div></div>
+          <div class="step"><span>06</span><div><strong>Deployment</strong><p>Menyajikan hasil penelitian melalui web story interaktif.</p></div></div>
+        </div>
+        <div class="method-notes">
+          <div><h4>Struktur spasio-temporal</h4><p>Pembobot spasial menggunakan <em>queen contiguity</em> berstandar baris. Wilayah tanpa tetangga langsung ditangani menggunakan K-Nearest Neighbors (KNN), k = 5. Struktur temporal memanfaatkan keterkaitan antarperiode pengamatan.</p></div>
+          <div><h4>Seleksi model</h4><p>Korelasi Pearson dan VIF digunakan untuk menilai kandidat variabel. <em>Backward elimination</em> berbasis AIC menghasilkan tujuh variabel penyerta terpilih: <strong>CO, LST, NDVI, NDBI, NTL, pendidikan, dan ekonomi</strong>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="hasil" class="section section-alt">
+      <div class="container">
+        <span class="section-kicker">03 / Hasil estimasi</span>
+        <h2>Pengeluaran per kapita sepanjang waktu</h2>
+        <p class="section-lead">Grafik menyandingkan rerata nilai estimasi kecamatan per tahun dari <code>pengeluaran_mean</code>, <code>EBLUP_Selected</code>, dan <code>EBLUP_STFH</code>. Rerata antarkecamatan ini <strong>bukan</strong> rata-rata pengeluaran provinsi berbobot penduduk.</p>
+        <div id="grafik-model" class="chart-box"><p class="placeholder">Grafik akan ditampilkan setelah CSV berhasil dibaca.</p></div>
+        <div class="subsection-heading"><h3>Ringkasan kecamatan pada tahun terpilih</h3><p>Diurutkan berdasarkan hasil <code>EBLUP_Selected</code> terbesar. Maksimal 15 kecamatan ditampilkan; gunakan eksplorasi untuk memilih kecamatan lain.</p></div>
+        <div id="estimasi-table" class="table-container"><p class="placeholder">Tabel menunggu data.</p></div>
+      </div>
+    </section>
+
+    <section id="evaluasi" class="section">
+      <div class="container">
+        <span class="section-kicker">04 / Seberapa presisi hasilnya?</span>
+        <h2>Evaluasi ketelitian estimasi</h2>
+        <p class="section-lead">Indikator dievaluasi per tahun menggunakan MSE dan RRMSE. Semakin kecil RRMSE, semakin rendah kesalahan estimasi relatif. Batas RRMSE &lt; 25% digunakan sebagai ukuran ketelitian dalam skripsi.</p>
+        <p class="method-warning">Perhatikan nama kolom: grafik dan tabel ketelitian spasio-temporal membaca <code>RRMSE_STFH</code> dan <code>MSE_STFH_pbmse</code>. Keduanya tidak otomatis dianggap sebagai metrik khusus untuk <code>EBLUP_Selected</code>. Pastikan kesesuaian model pada CSV sebelum menafsirkannya sebagai evaluasi model terpilih.</p>
+        <div id="grafik-rrmse" class="chart-box"><p class="placeholder">Grafik evaluasi menunggu data.</p></div>
+        <div id="rrmse-table" class="table-container"><p class="placeholder">Tabel evaluasi menunggu data.</p></div>
+      </div>
+    </section>
+
+    <section id="peta" class="section section-alt">
+      <div class="container">
+        <span class="section-kicker">05 / Eksplorasi wilayah</span>
+        <h2>Jelajahi setiap kecamatan</h2>
+        <p class="section-lead">Pilih tahun dan wilayah untuk melihat estimasi beserta tren pengeluaran per kapita. Peta membutuhkan GeoJSON batas wilayah, sedangkan seluruh nilainya dibaca dari CSV utama.</p>
+        <div class="filter-container">
+          <div class="field"><label for="yearSelect">Tahun</label><select id="yearSelect"><option value="">Memuat tahun…</option></select></div>
+          <div class="field" id="kab-field" hidden><label for="kab-filter">Kabupaten/Kota</label><select id="kab-filter"><option value="all">Semua kabupaten/kota</option></select></div>
+          <div class="field"><label for="kec-filter">Kecamatan</label><select id="kec-filter"><option value="all">Semua kecamatan</option></select></div>
+        </div>
+        <p id="filter-note" class="fine-print" role="status"></p>
+        <div id="map-panel" class="map-panel" hidden><div id="map" aria-label="Peta tematik estimasi pengeluaran per kapita"></div><div id="map-legend" class="map-legend"></div></div>
+        <div id="map-fallback" class="fallback-panel"><h3>Ringkasan wilayah dalam bentuk tabel</h3><p>Peta belum tersedia. Data kecamatan tetap dapat dijelajahi melalui pilihan kecamatan dan tabel hasil di bawah.</p><div id="map-fallback-table" class="table-container"></div></div>
+        <div id="profil-kecamatan" class="profile-card" hidden></div>
+        <div id="trend-panel" class="trend-panel" hidden><h3>Perkembangan kecamatan terpilih</h3><div id="grafik-kecamatan" class="chart-box"></div></div>
+      </div>
+    </section>
+
+    <section id="kesimpulan" class="section">
+      <div class="container narrow">
+        <span class="section-kicker">06 / Kesimpulan penelitian</span>
+        <h2>Mendukung gambaran wilayah yang lebih terperinci</h2>
+        <div class="conclusion">
+          <p>Penelitian dalam draf skripsi menunjukkan bahwa integrasi Susenas, Podes, dan citra satelit melalui SAE spasio-temporal dapat digunakan untuk menghasilkan estimasi pengeluaran per kapita tingkat kecamatan di Jawa Timur.</p>
+          <p>Model dengan tujuh variabel penyerta dipilih setelah proses seleksi berdasarkan AIC. Perbandingan dalam skripsi menunjukkan rerata RRMSE model spasio-temporal lebih rendah daripada estimasi langsung selama delapan tahun pengamatan, meskipun tingkat perbaikan tidak seragam untuk setiap wilayah dan periode.</p>
+          <p>Hasil estimasi dapat menjadi <strong>informasi pendukung</strong> analisis sosial ekonomi wilayah kecil. Pemakaiannya tetap perlu mempertimbangkan kualitas data, asumsi model, dan ukuran ketidakpastian.</p>
+        </div>
+        <p class="source-note"><strong>Sumber narasi:</strong> Draf skripsi “Pendekatan Spasio-Temporal Small Area Estimation untuk Estimasi Rata-Rata Pengeluaran Per Kapita Tingkat Kecamatan (Studi Kasus: Provinsi Jawa Timur)”, 2026. Nilai pada grafik dan tabel bersumber dari file CSV yang dipasang pada website.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container footer-inner"><div><strong>Spasio-Temporal SAE · Jawa Timur</strong><p>Web Story Penelitian · 2018–2025</p></div><a href="#beranda">Kembali ke atas ↑</a></div></footer>
 </body>
-
 </html>
