@@ -2,27 +2,26 @@
 
 ## Visualisasi Estimasi Rata-Rata Pengeluaran per Kapita Tingkat Kecamatan
 
-Website interaktif untuk menyajikan hasil penelitian **Spasio-Temporal Small Area Estimation (ST-SAE)** dalam mengestimasi rata-rata pengeluaran per kapita per bulan tingkat kecamatan di Provinsi Jawa Timur.
+Web Story untuk menyajikan hasil penelitian **Spasio-Temporal Small Area Estimation** dalam mengestimasi rata-rata pengeluaran per kapita per bulan tingkat kecamatan di Provinsi Jawa Timur.
 
 Website dikembangkan sebagai media penyajian hasil penelitian, evaluasi ketelitian estimasi, dan eksplorasi spasial-temporal.
 
 ## 1. Identitas Penelitian
 
-| Komponen | Keterangan |
-|---|---|
-| Judul | Pendekatan Spasio-Temporal Small Area Estimation untuk Estimasi Rata-Rata Pengeluaran Per Kapita Tingkat Kecamatan (Studi Kasus: Provinsi Jawa Timur) |
-| Jenis | Penelitian akademik / Skripsi |
-| Tahun | 2026 |
-| Wilayah | Provinsi Jawa Timur |
-| Unit analisis | Kecamatan |
-| Periode penelitian | 2018–2025 |
-| Metode | Area-Level Fay-Herriot Spasio-Temporal |
-| Penduga | Empirical Best Linear Unbiased Prediction (EBLUP) |
-| Kerangka penelitian | CRISP-DM |
-| Peneliti | [Isi nama peneliti] |
-| Institusi | [Isi institusi] |
-| Repositori | [Isi URL GitHub] |
-| Website | [Isi URL GitHub Pages] |
+| Komponen            | Keterangan                                                                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Judul               | Pendekatan Spasio-Temporal Small Area Estimation untuk Estimasi Rata-Rata Pengeluaran Per Kapita Tingkat Kecamatan (Studi Kasus: Provinsi Jawa Timur) |
+| Jenis               | Penelitian akademik / Skripsi                                                                                                                         |
+| Tahun               | 2026                                                                                                                                                  |
+| Wilayah             | Provinsi Jawa Timur                                                                                                                                   |
+| Unit analisis       | Kecamatan                                                                                                                                             |
+| Periode penelitian  | 2018–2025                                                                                                                                             |
+| Metode              | Area-Level Fay-Herriot Spasio-Temporal                                                                                                                |
+| Kerangka penelitian | CRISP-DM                                                                                                                                              |
+| Peneliti            | Meuthia Nazhifah Muthmainnah                                                                                                                          |
+| Institusi           | Politeknik Statistika STIS                                                                                                                            |
+| Repositori          | https://github.com/me-greeny/spasio-temporal-sae                                                                                                      |
+| Website             | https://me-greeny.github.io/spasio-temporal-sae/                                                                                                      |
 
 Cakupan aktual kecamatan dan tahun pada visualisasi dihitung dari dataset yang dimuat.
 
@@ -54,16 +53,14 @@ stsae-jatim/
 
 ### Keterangan berkas
 
-| Berkas | Fungsi |
-|---|---|
-| index.html | Struktur halaman dan konten web story |
-| style.css | Desain visual dan tata letak responsif |
-| script.js | Pembacaan data, grafik, filter, tabel, dan peta |
-| README.md | Dokumentasi proyek |
-| hasil_olah_data_all.csv | Satu-satunya sumber data statistik |
+| Berkas                  | Fungsi                                             |
+| ----------------------- | -------------------------------------------------- |
+| index.html              | Struktur halaman dan konten web story              |
+| style.css               | Desain visual dan tata letak responsif             |
+| script.js               | Pembacaan data, grafik, filter, tabel, dan peta    |
+| README.md               | Dokumentasi proyek                                 |
+| hasil_olah_data_all.csv | Satu-satunya sumber data statistik                 |
 | kecamatan_jatim.geojson | Geometri batas kecamatan untuk visualisasi spasial |
-
-GeoJSON bukan sumber nilai estimasi.
 
 ## 4. Struktur Data Utama
 
@@ -96,14 +93,10 @@ File `hasil_olah_data_all.csv` merupakan dataset panel tingkat kecamatan dan tah
 ## 5. Aturan Penggunaan Data
 
 - `pengeluaran_mean` digunakan sebagai estimasi langsung.
-- `EBLUP_Selected` diprioritaskan sebagai estimasi model terpilih.
-- `EBLUP_STFH` digunakan untuk perbandingan model penuh dan sebagai cadangan bila estimasi terpilih tidak tersedia.
+- `EBLUP_Selected` sebagai estimasi model terpilih.
 - `RRMSE_direct` dan `MSE_direct` digunakan untuk evaluasi estimasi langsung.
-- `RRMSE_STFH` dan `MSE_STFH_pbmse` digunakan untuk evaluasi STFH sesuai definisi kolom.
+- `RRMSE_STFH` dan `MSE_STFH_pbmse` digunakan untuk evaluasi hasil estimasi spasio-temporal SAE.
 - Kode wilayah dibaca sebagai teks agar format kode tidak berubah.
-- Data yang tidak tersedia tidak diganti dengan angka nol.
-
-Metrik STFH tidak otomatis diinterpretasikan sebagai metrik khusus `EBLUP_Selected`.
 
 ## 6. Teknologi
 
@@ -129,9 +122,9 @@ Website tidak membutuhkan backend atau database server.
 
 **Hasil Estimasi:** grafik perkembangan tahunan dan tabel hasil kecamatan.
 
-**Evaluasi:** perbandingan ketelitian estimasi langsung dan STFH.
+**Evaluasi:** perbandingan ketelitian estimasi langsung dan Spasio-Temporal SAE.
 
-**Eksplorasi Wilayah:** filter tahun, kabupaten/kota jika atribut tersedia, kecamatan, peta tematik, profil wilayah, dan grafik perkembangan.
+**Eksplorasi Wilayah:** filter tahun, kabupaten/kota, kecamatan, peta tematik, profil wilayah, dan grafik perkembangan.
 
 **Kesimpulan:** interpretasi hasil serta batasan penggunaannya.
 
@@ -146,13 +139,13 @@ Website tidak membutuhkan backend atau database server.
 
 Pastikan nama berkas dan kapitalisasi huruf sesuai dengan referensi di JavaScript.
 
-## 10. Keterbatasan
+## 8. Keterbatasan
 
 Website merupakan media visualisasi hasil penelitian, bukan aplikasi untuk melakukan estimasi ulang model.
 
 Rata-rata estimasi antarkecamatan yang ditampilkan pada grafik tahunan tidak otomatis mewakili rata-rata pengeluaran provinsi berbobot penduduk.
 
-## 11. Sumber dan Atribusi
+## 9. Sumber dan Atribusi
 
 Sumber data penelitian mencakup Susenas, Potensi Desa, dan produk citra satelit sebagaimana digunakan dalam penelitian.
 
@@ -160,11 +153,11 @@ Atribusi data, ketentuan penggunaan, dan sitasi ilmiah perlu mengikuti sumber as
 
 Basemap: © OpenStreetMap contributors.
 
-## 12. Kontak
+## 10. Kontak
 
 **Peneliti:** Meuthia Nazhifah Muthmainnah  
 **Institusi:** Politeknik Statistika STIS
-**Email:** 222212729@stis.ac.id 
+**Email:** 222212729@stis.ac.id
 **Repositori:** https://github.com/me-greeny/spasio-temporal-sae
 
 ---
