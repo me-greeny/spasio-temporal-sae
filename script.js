@@ -1,9 +1,3 @@
-/* =============================================================
-   WEB STORY ST-SAE JAWA TIMUR | GitHub Pages (static)
-   Sumber angka: SATU CSV; GeoJSON hanya untuk batas wilayah.
-   Urutan integrasi: index.html -> script.js -> style.css
-   ============================================================= */
-
 // 1. KONFIGURASI DATA: ganti lokasi ini jika CSV dipindahkan.
 const CSV_FILE = "data/hasil_olah_data_all.csv";
 // Opsional: file batas kecamatan tanpa/ dengan atribut per tahun.
