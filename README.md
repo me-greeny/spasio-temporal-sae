@@ -145,11 +145,9 @@ Website merupakan media visualisasi hasil penelitian, bukan aplikasi untuk melak
 
 Rata-rata estimasi antarkecamatan yang ditampilkan pada grafik tahunan tidak otomatis mewakili rata-rata pengeluaran provinsi berbobot penduduk.
 
-## 9. Sumber dan Atribusi
+## 9. Sumber Data
 
 Sumber data penelitian mencakup Susenas, Potensi Desa, dan produk citra satelit sebagaimana digunakan dalam penelitian.
-
-Atribusi data, ketentuan penggunaan, dan sitasi ilmiah perlu mengikuti sumber asli masing-masing.
 
 Basemap: © OpenStreetMap contributors.
 
